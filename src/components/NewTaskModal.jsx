@@ -1,0 +1,141 @@
+import { useState } from 'react'
+import { CloseIcon } from './icons'
+
+// "nuevo" no se ofrece aca a proposito: ese valor de prioridad es el que usa
+// La Secre para marcar "llegó hoy/reciente" en tareas que ella genera. Las
+// tareas manuales siguen usando normal/baja como antes (confirmado en
+// decisiones-rls-tareas.md, seccion 2).
+const PRIORIDADES = [
+  { value: 'urgente', label: 'Urgente' },
+  { value: 'seguimiento', label: 'Seguimiento' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'baja', label: 'Baja' },
+]
+
+const CONTEXTOS = [
+  { value: 'taller', label: 'Taller' },
+  { value: 'personal', label: 'Personal' },
+  { value: 'familia', label: 'Familia' },
+]
+
+export default function NewTaskModal({ usuarios, onClose, onCreate }) {
+  const [titulo, setTitulo] = useState('')
+  const [descripcion, setDescripcion] = useState('')
+  const [contexto, setContexto] = useState('taller')
+  const [asignadoA, setAsignadoA] = useState('')
+  const [prioridad, setPrioridad] = useState('normal')
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!titulo.trim()) return
+
+    setEnviando(true)
+    setError(null)
+    const resultado = await onCreate({ titulo: titulo.trim(), descripcion: descripcion.trim(), contexto, asignadoA, prioridad })
+    setEnviando(false)
+
+    if (!resultado.ok) {
+      setError(resultado.message)
+      return
+    }
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full sm:max-w-md bg-paper text-ink rounded-t-3xl sm:rounded-3xl p-5 space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-semibold">Nueva tarea</h2>
+          <button type="button" onClick={onClose} className="text-ink/50 hover:text-ink">
+            <CloseIcon size={20} />
+          </button>
+        </div>
+
+        <div>
+          <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Título</label>
+          <input
+            autoFocus
+            required
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+            placeholder="ej. Llamar a Recambios Alcoy"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Descripción (opcional)</label>
+          <textarea
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            rows={2}
+            className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Contexto</label>
+            <select
+              value={contexto}
+              onChange={(e) => setContexto(e.target.value)}
+              className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+            >
+              {CONTEXTOS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Prioridad</label>
+            <select
+              value={prioridad}
+              onChange={(e) => setPrioridad(e.target.value)}
+              className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+            >
+              {PRIORIDADES.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Asignar a (opcional)</label>
+          <select
+            value={asignadoA}
+            onChange={(e) => setAsignadoA(e.target.value)}
+            className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+          >
+            <option value="">Sin asignar (visible a todos)</option>
+            {usuarios.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.full_name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {error && <p className="text-sm text-[--color-prioridad-urgente]">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={enviando || !titulo.trim()}
+          className="w-full rounded-xl bg-amber text-bg font-display font-semibold py-2.5 disabled:opacity-50"
+        >
+          {enviando ? 'Creando…' : 'Crear tarea'}
+        </button>
+      </form>
+    </div>
+  )
+}
