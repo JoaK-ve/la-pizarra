@@ -28,3 +28,7 @@
 
 - 3 warnings de oxlint (`react/set-state-in-effect` en `useUsuarios.js` y `useTareas.js`; `react/only-export-components` en `AuthContext.jsx`).
 - Sin tests automatizados.
+
+## Feedback del usuario (2026-08-25)
+
+El usuario considera que La Pizarra "está demasiado simple" para lo que quiere y que hay que **desarrollarla mucho más** — no especificado todavía en qué dirección exactamente (más funciones, integración con el agente conversacional de WhatsApp que se está evaluando en paralelo, calendario de citas, etc.). Pendiente una sesión aparte para definir el alcance de esta siguiente fase antes de tocar código.
