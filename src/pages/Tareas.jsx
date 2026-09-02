@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTareas } from '../hooks/useTareas'
 import { useUsuarios } from '../hooks/useUsuarios'
+import { useReparacionesClientes } from '../hooks/useReparacionesClientes'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import NewTaskModal from '../components/NewTaskModal'
@@ -23,6 +24,9 @@ export default function Tareas() {
   const [modalAbierto, setModalAbierto] = useState(false)
 
   const { tareas, loading, error, toggleHecho, crearTarea } = useTareas({ contexto, asignadoA, mostrarHechas })
+  // Contexto real del taller (cliente + reparacion activa) para las tareas
+  // que tienen client_id -- solo lectura de WheelOS, ver el hook.
+  const reparacionesPorCliente = useReparacionesClientes(tareas)
 
   const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios])
 
@@ -98,7 +102,13 @@ export default function Tareas() {
           )}
 
           {tareas.map((tarea) => (
-            <TaskCard key={tarea.id} tarea={tarea} usuariosPorId={usuariosPorId} onToggleHecho={toggleHecho} />
+            <TaskCard
+              key={tarea.id}
+              tarea={tarea}
+              usuariosPorId={usuariosPorId}
+              reparacionesPorCliente={reparacionesPorCliente}
+              onToggleHecho={toggleHecho}
+            />
           ))}
         </main>
       </div>

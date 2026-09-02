@@ -14,9 +14,19 @@ const CONTEXTO_LABEL = {
   familia: 'Familia',
 }
 
-export default function TaskCard({ tarea, usuariosPorId, onToggleHecho }) {
+const ESTADO_REPARACION_LABEL = {
+  pendiente: 'Pendiente',
+  en_progreso: 'En progreso',
+  terminado: 'Terminado',
+}
+
+export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente, onToggleHecho }) {
   const hecha = tarea.estado === 'hecho'
   const asignado = tarea.asignado_a ? usuariosPorId.get(tarea.asignado_a) : null
+  // Contexto real del taller (cliente + reparacion activa, si tiene) --
+  // viene de WheelOS via useReparacionesClientes. Solo existe cuando la
+  // tarea tiene client_id (hoy, sobre todo las que crea La Secre).
+  const contexto = tarea.client_id ? reparacionesPorCliente?.get(tarea.client_id) : null
 
   return (
     <div
@@ -68,6 +78,26 @@ export default function TaskCard({ tarea, usuariosPorId, onToggleHecho }) {
           )}
           {asignado && <span className="px-2 py-0.5 rounded-full bg-ink/10 text-ink/70">{asignado.full_name}</span>}
         </div>
+
+        {contexto && (
+          <div className="mt-2 pt-2 border-t border-ink/10 text-xs text-ink/60 space-y-0.5">
+            {contexto.cliente && (
+              <p className="font-medium text-ink/80">
+                {[contexto.cliente.first_name, contexto.cliente.last_name].filter(Boolean).join(' ')}
+                {contexto.cliente.phone && ` · 📱 ${contexto.cliente.phone}`}
+              </p>
+            )}
+            {contexto.reparacion && (
+              <p>
+                {[contexto.reparacion.scooter_brand_snapshot, contexto.reparacion.scooter_model_snapshot]
+                  .filter(Boolean)
+                  .join(' ') || 'Patín sin marca/modelo registrado'}
+                {' · '}
+                {ESTADO_REPARACION_LABEL[contexto.reparacion.status] ?? contexto.reparacion.status}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
