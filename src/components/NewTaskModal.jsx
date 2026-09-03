@@ -18,8 +18,13 @@ const CONTEXTOS = [
   { value: 'familia', label: 'Familia' },
 ]
 
-export default function NewTaskModal({ usuarios, onClose, onCreate }) {
-  const [titulo, setTitulo] = useState('')
+// `prefill` (opcional) llega cuando el modal se abre desde "Crear tarea" en
+// una reparacion activa (ver Tareas.jsx / RepairCard.jsx): trae el cliente
+// ya vinculado y un titulo sugerido. El cliente no se puede cambiar desde
+// aca a proposito -- si la tarea es sobre otro cliente, se crea sin
+// prefill desde el boton normal de "Nueva tarea".
+export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
+  const [titulo, setTitulo] = useState(prefill?.titulo ?? '')
   const [descripcion, setDescripcion] = useState('')
   const [contexto, setContexto] = useState('taller')
   const [asignadoA, setAsignadoA] = useState('')
@@ -33,7 +38,15 @@ export default function NewTaskModal({ usuarios, onClose, onCreate }) {
 
     setEnviando(true)
     setError(null)
-    const resultado = await onCreate({ titulo: titulo.trim(), descripcion: descripcion.trim(), contexto, asignadoA, prioridad })
+    const resultado = await onCreate({
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim(),
+      contexto,
+      asignadoA,
+      prioridad,
+      clientId: prefill?.clientId ?? null,
+      clienteRef: prefill?.clienteRef ?? null,
+    })
     setEnviando(false)
 
     if (!resultado.ok) {
@@ -55,6 +68,12 @@ export default function NewTaskModal({ usuarios, onClose, onCreate }) {
             <CloseIcon size={20} />
           </button>
         </div>
+
+        {prefill?.clienteNombre && (
+          <p className="text-sm rounded-xl bg-amber/15 border border-amber/30 px-3 py-2 text-ink/80">
+            Vinculada a <span className="font-semibold">{prefill.clienteNombre}</span>
+          </p>
+        )}
 
         <div>
           <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Título</label>

@@ -61,7 +61,7 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
   )
 
   const crearTarea = useCallback(
-    async ({ titulo, descripcion, contexto: ctx, asignadoA: asignado, prioridad }) => {
+    async ({ titulo, descripcion, contexto: ctx, asignadoA: asignado, prioridad, clientId, clienteRef }) => {
       if (!user) return { ok: false, message: 'No hay sesion activa.' }
 
       // creado_por/workshop_id se resuelven del perfil del usuario logueado,
@@ -76,6 +76,9 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
         return { ok: false, message: 'No se pudo resolver tu perfil de usuario.' }
       }
 
+      // clientId/clienteRef solo vienen cuando la tarea se crea desde la
+      // vista de Reparaciones (ver RepairCard) -- en el formulario manual
+      // normal quedan undefined y se guardan como null, igual que antes.
       const { error } = await supabase.from('tareas').insert({
         workshop_id: perfil.workshop_id,
         titulo,
@@ -85,6 +88,8 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
         prioridad,
         creado_por: perfil.id,
         asignado_a: asignado || null,
+        client_id: clientId || null,
+        cliente_ref: clienteRef || null,
       })
 
       if (error) return { ok: false, message: error.message }
