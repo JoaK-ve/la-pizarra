@@ -39,9 +39,16 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
         type="button"
         onClick={() => onToggleHecho(tarea)}
         aria-label={hecha ? 'Marcar como pendiente' : 'Marcar como hecha'}
+        // El color de fondo/borde va por estilo en linea (no por clase de
+        // Tailwind) a proposito: `bg-[--variable]` no genera ninguna regla
+        // en este proyecto (se confirmo mirando el color calculado real en
+        // el navegador -- quedaba transparente), asi que el circulo de
+        // "hecha" era invisible desde siempre. Mismo patron que ya usa la
+        // etiqueta de prioridad mas abajo, que si funciona.
+        style={hecha ? { backgroundColor: 'var(--color-prioridad-nuevo)', borderColor: 'var(--color-prioridad-nuevo)' } : undefined}
         className={
           'mt-0.5 w-6 h-6 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ' +
-          (hecha ? 'bg-[--color-prioridad-nuevo] border-[--color-prioridad-nuevo] text-paper' : 'border-ink/30 text-transparent hover:border-ink/60')
+          (hecha ? 'text-paper' : 'border-ink/30 text-transparent hover:border-ink/60')
         }
       >
         <CheckIcon size={14} />
