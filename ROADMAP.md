@@ -45,16 +45,21 @@
 
 El usuario consideró que La Pizarra "está demasiado simple" y pidió desarrollarla mucho más. Se hizo una lluvia de ideas y se eligió la primera (conectar con las reparaciones/clientes reales de WheelOS) — ver "Hecho (fase 2)" arriba, ya construida y verificada.
 
+## Hecho (fase 3 — bitácora de notas, 2026-09-03)
+
+- **Tabla `tarea_notas`** en Supabase (RLS por taller, mismo patrón que el resto). Cada nota guarda quién la escribió y cuándo, automático.
+- **Bitácora completa por tarea** — tocar el contenido de una tarjeta (no el círculo) abre el detalle con el historial de notas y un campo para agregar una nueva, en cualquier momento (pendiente o hecha).
+- **Confirmación al marcar hecha** — tocar el círculo de una tarea pendiente pide confirmar, con un campo opcional para dejar la última nota de una vez. Reabrir (hecha → pendiente) sigue siendo instantáneo, sin preguntar.
+- **Indicador "💬 N"** en la tarjeta cuando tiene notas.
+- Verificado de punta a punta en producción con datos y cuenta reales (2026-09-03): nota agregada desde el detalle, nota agregada al confirmar cierre, contador actualizado en ambos casos.
+
 ## Ideas para el futuro (de la misma lluvia de ideas, sin empezar todavía)
 
-Quedaron anotadas para retomar cuando se decida seguir con la fase 2. Orden sugerido por impacto, no es definitivo:
+Quedaron anotadas para retomar. Orden sugerido por impacto, no es definitivo:
 
-- **Calendario.** Vista con fechas de entrega de reparaciones y `fecha_límite` de tareas urgentes (la columna ya existe en la base, solo falta la vista). Aparte, una agenda simple de citas de recepción — esto sí sería una tabla nueva.
+- **Calendario.** Vista con fechas de entrega de reparaciones y `fecha_límite` de tareas urgentes (la columna ya existe en la base, solo falta la vista). Aparte, una agenda simple de citas de recepción — esto sí sería una tabla nueva. **Siguiente en la fila.**
 - **Tablero tipo kanban.** Columnas por estado (pendiente / en progreso / hecho) en vez de lista plana, arrastrar y soltar. Aprovecharía que La Secre ya usa 3 estados aunque hoy la app solo muestre 2.
-- **Notas/comentarios dentro de una tarea.** Bitácora de qué se habló o decidió — hoy una tarea es solo título + descripción, sin historial.
 - **Ver la foto adjunta.** La columna `tiene_foto` ya existe y se usa (icono de cámara), pero no hay forma de ver la foto en sí todavía.
 - **Notificaciones** cuando te asignan una tarea o algo se pone urgente.
 - **Reportes simples.** Ej. "esta semana cerró X tareas Lili, Y Joaquín" — útil para la reunión de los lunes.
 - **Agente conversacional de WhatsApp (Evolution API + Dify).** Documentado por separado en el roadmap de La Secre — es un proyecto aparte, no de La Pizarra, pero se evaluó en paralelo a esta misma conversación.
-
-Cuál de estas sigue, sin decidir todavía.
