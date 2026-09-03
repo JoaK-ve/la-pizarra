@@ -8,6 +8,7 @@ import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import NewTaskModal from '../components/NewTaskModal'
+import BuildVersion from '../components/BuildVersion'
 import { LogoutIcon, PlusIcon } from '../components/icons'
 
 const CONTEXTOS = [
@@ -73,6 +74,7 @@ export default function Tareas() {
           <div>
             <h1 className="font-display text-xl font-bold text-paper">La Pizarra</h1>
             {profile && <p className="text-paper/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
+            <BuildVersion className="mt-0.5" />
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">

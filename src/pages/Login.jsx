@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import BuildVersion from '../components/BuildVersion'
 
 export default function Login() {
   const { signIn } = useAuth()
@@ -57,6 +58,8 @@ export default function Login() {
         >
           {enviando ? 'Entrando…' : 'Entrar'}
         </button>
+
+        <BuildVersion className="text-center" />
       </form>
     </div>
   )
