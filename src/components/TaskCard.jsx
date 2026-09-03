@@ -20,7 +20,7 @@ const ESTADO_REPARACION_LABEL = {
   terminado: 'Terminado',
 }
 
-export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente, onToggleHecho }) {
+export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente, notaCount, onCircleClick, onAbrirDetalle }) {
   const hecha = tarea.estado === 'hecho'
   const asignado = tarea.asignado_a ? usuariosPorId.get(tarea.asignado_a) : null
   // Contexto real del taller (cliente + reparacion activa, si tiene) --
@@ -37,7 +37,7 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
     <div className="rounded-2xl bg-paper text-ink p-4 flex gap-3 items-start shadow-sm">
       <button
         type="button"
-        onClick={() => onToggleHecho(tarea)}
+        onClick={() => onCircleClick(tarea)}
         aria-label={hecha ? 'Marcar como pendiente' : 'Marcar como hecha'}
         // El color de fondo/borde va por estilo en linea (no por clase de
         // Tailwind) a proposito: `bg-[--variable]` no genera ninguna regla
@@ -54,7 +54,13 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
         <CheckIcon size={14} />
       </button>
 
-      <div className={'flex-1 min-w-0 ' + (hecha ? 'opacity-50' : '')}>
+      {/* Tocar el contenido (no el circulo) abre el detalle con la
+          bitacora completa -- el circulo queda dedicado solo a
+          marcar/reabrir, sin ambiguedad de que hace cada toque. */}
+      <div
+        className={'flex-1 min-w-0 cursor-pointer ' + (hecha ? 'opacity-50' : '')}
+        onClick={() => onAbrirDetalle(tarea)}
+      >
         <div className="flex items-start justify-between gap-2">
           <p className={'font-display font-semibold leading-snug ' + (hecha ? 'line-through' : '')}>
             {tarea.titulo}
@@ -84,6 +90,9 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
             </span>
           )}
           {asignado && <span className="px-2 py-0.5 rounded-full bg-ink/10 text-ink/70">{asignado.full_name}</span>}
+          {notaCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-ink/10 text-ink/70">💬 {notaCount}</span>
+          )}
         </div>
 
         {contexto && (

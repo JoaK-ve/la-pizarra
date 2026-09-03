@@ -1,0 +1,78 @@
+import { useState } from 'react'
+import { useTareaNotas } from '../hooks/useTareaNotas'
+import { CloseIcon } from './icons'
+
+// Se abre al tocar el CONTENIDO de una tarjeta de tarea (no el circulo).
+// Muestra la bitacora completa y deja agregar una nota nueva en cualquier
+// momento, este la tarea pendiente o hecha -- no hace falta cerrarla para
+// dejar constancia de que "pedi la pieza" o "llame al cliente".
+export default function TareaDetalle({ tarea, onClose, onNotaAgregada }) {
+  const { notas, loading, agregarNota } = useTareaNotas(tarea.id)
+  const [texto, setTexto] = useState('')
+  const [enviando, setEnviando] = useState(false)
+
+  async function handleAgregar(e) {
+    e.preventDefault()
+    if (!texto.trim()) return
+    setEnviando(true)
+    const resultado = await agregarNota(texto)
+    setEnviando(false)
+    if (resultado.ok) {
+      setTexto('')
+      onNotaAgregada?.()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
+      <div className="w-full sm:max-w-md bg-paper text-ink rounded-t-3xl sm:rounded-3xl p-5 flex flex-col max-h-[85vh]">
+        <div className="flex items-start justify-between gap-2 shrink-0">
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-semibold leading-snug">{tarea.titulo}</h2>
+            {tarea.descripcion && <p className="text-sm text-ink/60 mt-1">{tarea.descripcion}</p>}
+          </div>
+          <button type="button" onClick={onClose} className="text-ink/50 hover:text-ink shrink-0">
+            <CloseIcon size={20} />
+          </button>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-ink/10 flex-1 overflow-y-auto space-y-3">
+          <p className="text-xs font-mono uppercase tracking-wide text-ink/40">Bitácora</p>
+          {loading && <p className="text-sm text-ink/40">Cargando…</p>}
+          {!loading && notas.length === 0 && <p className="text-sm text-ink/40">Sin notas todavía.</p>}
+          {notas.map((nota) => (
+            <div key={nota.id} className="text-sm">
+              <p className="text-ink/40 text-xs font-mono">
+                {new Date(nota.created_at).toLocaleString('es-ES', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+                {' · '}
+                {nota.autor?.full_name?.split(' ')[0] ?? 'Alguien'}
+              </p>
+              <p className="text-ink/90 mt-0.5">{nota.texto}</p>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleAgregar} className="mt-4 pt-3 border-t border-ink/10 flex gap-2 shrink-0">
+          <input
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder="Agregar una nota…"
+            className="flex-1 min-w-0 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+          />
+          <button
+            type="submit"
+            disabled={enviando || !texto.trim()}
+            className="shrink-0 rounded-xl bg-amber text-bg font-display font-semibold px-4 py-2 disabled:opacity-50"
+          >
+            {enviando ? '…' : 'Agregar'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}

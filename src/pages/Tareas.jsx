@@ -4,10 +4,13 @@ import { useTareas } from '../hooks/useTareas'
 import { useUsuarios } from '../hooks/useUsuarios'
 import { useReparacionesClientes } from '../hooks/useReparacionesClientes'
 import { useReparacionesActivas } from '../hooks/useReparacionesActivas'
+import { useContadorNotas } from '../hooks/useContadorNotas'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import NewTaskModal from '../components/NewTaskModal'
+import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
+import TareaDetalle from '../components/TareaDetalle'
 import BuildVersion from '../components/BuildVersion'
 import { LogoutIcon, PlusIcon } from '../components/icons'
 
@@ -29,6 +32,11 @@ export default function Tareas() {
   // Datos precargados para el modal cuando se crea una tarea desde una
   // reparacion (ver RepairCard) -- null cuando es "Nueva tarea" normal.
   const [prefillModal, setPrefillModal] = useState(null)
+  // Tarea pendiente que se esta por marcar como hecha (abre el modal de
+  // confirmacion) y tarea cuyo detalle/bitacora esta abierto -- null
+  // cuando ninguno de los dos esta abierto.
+  const [tareaConfirmarHecha, setTareaConfirmarHecha] = useState(null)
+  const [tareaDetalle, setTareaDetalle] = useState(null)
 
   const { tareas, loading, error, toggleHecho, crearTarea } = useTareas({ contexto, asignadoA, mostrarHechas })
   // Contexto real del taller (cliente + reparacion activa) para las tareas
@@ -36,6 +44,8 @@ export default function Tareas() {
   const reparacionesPorCliente = useReparacionesClientes(tareas)
   // Lista completa de reparaciones activas del taller, para la vista nueva.
   const { reparaciones, loading: loadingReparaciones, error: errorReparaciones } = useReparacionesActivas()
+  // Cuantas notas tiene cada tarea visible, para el indicador "💬 N".
+  const { contador: contadorNotas, refetch: recargarContadorNotas } = useContadorNotas(tareas.map((t) => t.id))
 
   const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios])
 
@@ -62,6 +72,17 @@ export default function Tareas() {
   function cerrarModal() {
     setModalAbierto(false)
     setPrefillModal(null)
+  }
+
+  // Tocar el circulo: si la tarea ya esta hecha, reabrirla es instantaneo
+  // (sin preguntar nada). Si esta pendiente, se pide confirmar (y de paso
+  // se puede dejar una nota) antes de cerrarla -- ver ConfirmarHechaModal.
+  function manejarClickCirculo(tarea) {
+    if (tarea.estado === 'hecho') {
+      toggleHecho(tarea)
+    } else {
+      setTareaConfirmarHecha(tarea)
+    }
   }
 
   return (
@@ -147,7 +168,9 @@ export default function Tareas() {
                   tarea={tarea}
                   usuariosPorId={usuariosPorId}
                   reparacionesPorCliente={reparacionesPorCliente}
-                  onToggleHecho={toggleHecho}
+                  notaCount={contadorNotas.get(tarea.id) ?? 0}
+                  onCircleClick={manejarClickCirculo}
+                  onAbrirDetalle={setTareaDetalle}
                 />
               ))}
             </main>
@@ -188,6 +211,23 @@ export default function Tareas() {
 
       {modalAbierto && (
         <NewTaskModal usuarios={usuarios} onClose={cerrarModal} onCreate={crearTarea} prefill={prefillModal} />
+      )}
+
+      {tareaConfirmarHecha && (
+        <ConfirmarHechaModal
+          tarea={tareaConfirmarHecha}
+          onClose={() => setTareaConfirmarHecha(null)}
+          onToggleHecho={toggleHecho}
+          onNotaAgregada={recargarContadorNotas}
+        />
+      )}
+
+      {tareaDetalle && (
+        <TareaDetalle
+          tarea={tareaDetalle}
+          onClose={() => setTareaDetalle(null)}
+          onNotaAgregada={recargarContadorNotas}
+        />
       )}
     </div>
   )
