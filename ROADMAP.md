@@ -53,11 +53,20 @@ El usuario consideró que La Pizarra "está demasiado simple" y pidió desarroll
 - **Indicador "💬 N"** en la tarjeta cuando tiene notas.
 - Verificado de punta a punta en producción con datos y cuenta reales (2026-09-03): nota agregada desde el detalle, nota agregada al confirmar cierre, contador actualizado en ambos casos.
 
+## Hecho (fase 4 — calendario, 2026-09-03)
+
+- **Vistas Día / Semana / Mes** para las tareas con `fecha_límite` (deadlines o citas, ej. agendar matriculación de un cliente).
+- **Mes**: insignia numerada por día (no un punto) — de un vistazo se ve cuántas tareas hay cada día.
+- **Semana**: una fila por día con su insignia, encabezado tipo "31 ago – 6 sep" (cruza de mes correctamente).
+- **Día**: la tarjeta de tarea de siempre para ese día, con flechas para navegar día a día.
+- Tocar un día en Mes o Semana lleva directo a su vista Día.
+- A propósito NO incluye reparaciones de WheelOS (no tienen fecha de entrega real en la base — ver nota en el commit).
+- Primer diseño (un punto de 4px) no convenció al usuario ("se ve terrible") — se rehizo completo con insignias numeradas y las tres vistas. Verificado en las tres en producción.
+
 ## Ideas para el futuro (de la misma lluvia de ideas, sin empezar todavía)
 
 Quedaron anotadas para retomar. Orden sugerido por impacto, no es definitivo:
 
-- **Calendario.** Vista con fechas de entrega de reparaciones y `fecha_límite` de tareas urgentes (la columna ya existe en la base, solo falta la vista). Aparte, una agenda simple de citas de recepción — esto sí sería una tabla nueva. **Siguiente en la fila.**
 - **Tablero tipo kanban.** Columnas por estado (pendiente / en progreso / hecho) en vez de lista plana, arrastrar y soltar. Aprovecharía que La Secre ya usa 3 estados aunque hoy la app solo muestre 2.
 - **Ver la foto adjunta.** La columna `tiene_foto` ya existe y se usa (icono de cámara), pero no hay forma de ver la foto en sí todavía.
 - **Notificaciones** cuando te asignan una tarea o algo se pone urgente.
