@@ -8,6 +8,7 @@ import { useContadorNotas } from '../hooks/useContadorNotas'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
+import Calendario from '../components/Calendario'
 import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
@@ -24,7 +25,7 @@ const CONTEXTOS = [
 export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
-  const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones'
+  const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
   const [contexto, setContexto] = useState('todos')
   const [asignadoA, setAsignadoA] = useState('todos')
   const [mostrarHechas, setMostrarHechas] = useState(false)
@@ -121,6 +122,7 @@ export default function Tareas() {
         <div className="px-4 sm:px-6 flex gap-2">
           <FilterPill label="Tareas" active={vista === 'tareas'} onClick={() => setVista('tareas')} />
           <FilterPill label="Reparaciones" active={vista === 'reparaciones'} onClick={() => setVista('reparaciones')} />
+          <FilterPill label="Calendario" active={vista === 'calendario'} onClick={() => setVista('calendario')} />
         </div>
 
         {vista === 'tareas' && (
@@ -194,6 +196,16 @@ export default function Tareas() {
               />
             ))}
           </main>
+        )}
+
+        {vista === 'calendario' && (
+          <Calendario
+            usuariosPorId={usuariosPorId}
+            reparacionesPorCliente={reparacionesPorCliente}
+            contadorNotas={contadorNotas}
+            onCircleClick={manejarClickCirculo}
+            onAbrirDetalle={setTareaDetalle}
+          />
         )}
       </div>
 
