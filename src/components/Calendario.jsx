@@ -89,16 +89,21 @@ export default function Calendario({ usuariosPorId, reparacionesPorCliente, cont
               type="button"
               onClick={() => setDiaSeleccionado(clave)}
               className={
-                'aspect-square rounded-lg text-sm flex flex-col items-center justify-center relative ' +
+                'aspect-square rounded-lg text-sm flex flex-col items-center justify-center gap-0.5 relative ' +
                 (esSeleccionado
                   ? 'bg-amber text-bg font-semibold'
-                  : esHoy
-                    ? 'border border-amber text-paper'
-                    : 'text-paper/70 hover:bg-paper/5')
+                  : tieneTareas
+                    ? 'bg-amber/20 text-paper font-semibold' + (esHoy ? ' border border-amber' : '')
+                    : esHoy
+                      ? 'border border-amber text-paper'
+                      : 'text-paper/70 hover:bg-paper/5')
               }
             >
               {dia.getDate()}
-              {tieneTareas && !esSeleccionado && <span className="absolute bottom-1 w-1 h-1 rounded-full bg-amber" />}
+              {/* Punto extra dentro del dia seleccionado (fondo ambar) para
+                  no perder la senal de "tiene tareas" cuando ademas esta
+                  activo -- en los demas casos ya lo dice el fondo. */}
+              {tieneTareas && esSeleccionado && <span className="w-1.5 h-1.5 rounded-full bg-bg" />}
             </button>
           )
         })}
