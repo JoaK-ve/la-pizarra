@@ -22,13 +22,16 @@ const CONTEXTOS = [
 // una reparacion activa (ver Tareas.jsx / RepairCard.jsx): trae el cliente
 // ya vinculado y un titulo sugerido. El cliente no se puede cambiar desde
 // aca a proposito -- si la tarea es sobre otro cliente, se crea sin
-// prefill desde el boton normal de "Nueva tarea".
+// prefill desde el boton normal de "Nueva tarea". `prefill.fecha` (
+// "YYYY-MM-DD") llega cuando se abre desde el Calendario -- ver
+// Calendario.jsx / Tareas.jsx.
 export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
   const [titulo, setTitulo] = useState(prefill?.titulo ?? '')
   const [descripcion, setDescripcion] = useState('')
   const [contexto, setContexto] = useState('taller')
   const [asignadoA, setAsignadoA] = useState('')
   const [prioridad, setPrioridad] = useState('normal')
+  const [fechaLimite, setFechaLimite] = useState(prefill?.fecha ?? '')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -46,6 +49,7 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
       prioridad,
       clientId: prefill?.clientId ?? null,
       clienteRef: prefill?.clienteRef ?? null,
+      fechaLimite: fechaLimite || null,
     })
     setEnviando(false)
 
@@ -127,6 +131,17 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
               ))}
             </select>
           </div>
+        </div>
+
+        <div>
+          <label className="text-xs font-mono uppercase tracking-wide text-ink/50">Fecha (opcional)</label>
+          <input
+            type="date"
+            value={fechaLimite}
+            onChange={(e) => setFechaLimite(e.target.value)}
+            className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+          />
+          <p className="text-xs text-ink/40 mt-1">Para que aparezca en el Calendario -- deadline o cita.</p>
         </div>
 
         <div>

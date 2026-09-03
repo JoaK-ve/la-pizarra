@@ -61,7 +61,7 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
   )
 
   const crearTarea = useCallback(
-    async ({ titulo, descripcion, contexto: ctx, asignadoA: asignado, prioridad, clientId, clienteRef }) => {
+    async ({ titulo, descripcion, contexto: ctx, asignadoA: asignado, prioridad, clientId, clienteRef, fechaLimite }) => {
       if (!user) return { ok: false, message: 'No hay sesion activa.' }
 
       // creado_por/workshop_id se resuelven del perfil del usuario logueado,
@@ -90,6 +90,7 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
         asignado_a: asignado || null,
         client_id: clientId || null,
         cliente_ref: clienteRef || null,
+        fecha_limite: fechaLimite || null,
       })
 
       if (error) return { ok: false, message: error.message }

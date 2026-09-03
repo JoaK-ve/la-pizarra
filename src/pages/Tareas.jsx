@@ -4,6 +4,7 @@ import { useTareas } from '../hooks/useTareas'
 import { useUsuarios } from '../hooks/useUsuarios'
 import { useReparacionesClientes } from '../hooks/useReparacionesClientes'
 import { useReparacionesActivas } from '../hooks/useReparacionesActivas'
+import { useTareasConFecha } from '../hooks/useTareasConFecha'
 import { useContadorNotas } from '../hooks/useContadorNotas'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
@@ -47,6 +48,10 @@ export default function Tareas() {
   const { reparaciones, loading: loadingReparaciones, error: errorReparaciones } = useReparacionesActivas()
   // Cuantas notas tiene cada tarea visible, para el indicador "💬 N".
   const { contador: contadorNotas, refetch: recargarContadorNotas } = useContadorNotas(tareas.map((t) => t.id))
+  // Tareas con fecha_limite, para el Calendario -- se pide aca (no adentro
+  // de Calendario.jsx) para poder refrescarlo despues de crear una tarea
+  // desde cualquier lado, no solo desde el propio calendario.
+  const { tareas: tareasConFecha, loading: loadingCalendario, refetch: recargarCalendario } = useTareasConFecha()
 
   const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios])
 
@@ -57,6 +62,23 @@ export default function Tareas() {
   function abrirNuevaTarea() {
     setPrefillModal(null)
     setModalAbierto(true)
+  }
+
+  // Desde el boton "Nueva tarea para este dia" del Calendario -- precarga
+  // la fecha que se estaba mirando.
+  function abrirNuevaTareaEnFecha(fecha) {
+    setPrefillModal({ fecha })
+    setModalAbierto(true)
+  }
+
+  // crearTarea (de useTareas) ya refresca su propia lista -- esto ademas
+  // refresca el Calendario, que trae sus datos por separado (ver arriba),
+  // asi una tarea con fecha creada desde CUALQUIER lado aparece ahi sin
+  // tener que salir y volver a entrar a esa pestaña.
+  async function crearTareaYRefrescar(datos) {
+    const resultado = await crearTarea(datos)
+    if (resultado.ok) recargarCalendario()
+    return resultado
   }
 
   function abrirTareaDesdeReparacion(reparacion) {
@@ -200,11 +222,14 @@ export default function Tareas() {
 
         {vista === 'calendario' && (
           <Calendario
+            tareas={tareasConFecha}
+            loading={loadingCalendario}
             usuariosPorId={usuariosPorId}
             reparacionesPorCliente={reparacionesPorCliente}
             contadorNotas={contadorNotas}
             onCircleClick={manejarClickCirculo}
             onAbrirDetalle={setTareaDetalle}
+            onCrearTareaEnFecha={abrirNuevaTareaEnFecha}
           />
         )}
       </div>
@@ -222,7 +247,7 @@ export default function Tareas() {
       )}
 
       {modalAbierto && (
-        <NewTaskModal usuarios={usuarios} onClose={cerrarModal} onCreate={crearTarea} prefill={prefillModal} />
+        <NewTaskModal usuarios={usuarios} onClose={cerrarModal} onCreate={crearTareaYRefrescar} prefill={prefillModal} />
       )}
 
       {tareaConfirmarHecha && (

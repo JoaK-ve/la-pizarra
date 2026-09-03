@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useTareasConFecha } from '../hooks/useTareasConFecha'
 import TaskCard from './TaskCard'
+import { PlusIcon } from './icons'
 
 const DIAS_SEMANA_CORTO = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 const MESES = [
@@ -59,8 +59,22 @@ function PastillaTareas({ cantidad, contraste, className = '' }) {
 // reparaciones de WheelOS NO aparecen aca a proposito -- no tienen una
 // fecha de entrega real en la base (ver ROADMAP.md); se gestionan desde
 // WheelOS, y la pestaña "Reparaciones" ya cubre verlas/crear tareas.
-export default function Calendario({ usuariosPorId, reparacionesPorCliente, contadorNotas, onCircleClick, onAbrirDetalle }) {
-  const { tareas, loading } = useTareasConFecha()
+//
+// `tareas`/`loading` vienen de Tareas.jsx (useTareasConFecha vive alla,
+// igual que el resto de los datos) para que al crear una tarea desde
+// cualquier lado se pueda refrescar esto tambien -- si el hook viviera
+// aca adentro, no se enteraba de tareas nuevas creadas por el boton
+// generico de "Nueva tarea" sin salir y volver a entrar a esta pestaña.
+export default function Calendario({
+  tareas,
+  loading,
+  usuariosPorId,
+  reparacionesPorCliente,
+  contadorNotas,
+  onCircleClick,
+  onAbrirDetalle,
+  onCrearTareaEnFecha,
+}) {
   const [vistaCal, setVistaCal] = useState('mes') // 'dia' | 'semana' | 'mes'
   const [fechaAncla, setFechaAncla] = useState(() => new Date())
 
@@ -147,6 +161,7 @@ export default function Calendario({ usuariosPorId, reparacionesPorCliente, cont
           contadorNotas={contadorNotas}
           onCircleClick={onCircleClick}
           onAbrirDetalle={onAbrirDetalle}
+          onCrear={() => onCrearTareaEnFecha(formatearFechaLocal(fechaAncla))}
         />
       )}
     </div>
@@ -176,7 +191,7 @@ function VistaMes({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1.5 text-center text-xs text-paper/40 font-mono mb-1.5">
+      <div className="grid grid-cols-7 gap-1.5 text-center text-xs text-paper/50 font-mono font-bold mb-1.5">
         {DIAS_SEMANA_CORTO.map((d, i) => (
           <span key={`${d}-${i}`}>{d}</span>
         ))}
@@ -250,9 +265,19 @@ function ListaTareasDelDia({
   contadorNotas,
   onCircleClick,
   onAbrirDetalle,
+  onCrear,
 }) {
   return (
     <div className="space-y-2.5 pb-4">
+      <button
+        type="button"
+        onClick={onCrear}
+        className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-paper/20 text-paper/60 hover:text-paper hover:border-paper/40 text-sm py-2.5 transition-colors"
+      >
+        <PlusIcon size={14} />
+        Nueva tarea para este día
+      </button>
+
       {loading && <p className="text-paper/40 text-sm">Cargando…</p>}
       {!loading && tareas.length === 0 && <p className="text-paper/40 text-sm">Sin tareas con esta fecha.</p>}
       {tareas.map((tarea) => (
