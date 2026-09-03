@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-08-26.
+Última actualización: 2026-09-03.
 
 ## Hecho (V1)
 
@@ -16,6 +16,11 @@
 - **Pestaña "Reparaciones".** Lista todas las reparaciones activas del taller (no solo las que ya tienen tarea), con botón "+ Tarea" en cada una que abre el formulario ya precargado con el cliente — ya no hace falta escribirlo a mano.
 - Verificado de punta a punta en producción con datos y cuenta reales (2026-08-26).
 - **Simplificación consciente:** no se evita crear dos tareas para la misma reparación si dos personas usan el botón sin coordinarse. No es grave (se cierra una y ya) — se resuelve más adelante solo si en la práctica resulta molesto.
+
+## Hecho (2026-09-03)
+
+- **Fix: el círculo para reabrir una tarea hecha era invisible.** No era un problema de opacidad (como parecía) sino que la clase de Tailwind que le daba color de fondo/borde nunca generó ninguna regla CSS real — quedaba transparente sobre transparente. Confirmado mirando el color calculado real en el navegador antes de corregirlo. Se cambió a estilo en línea (mismo patrón que ya usa la etiqueta de prioridad).
+- **Número de versión visible en la app.** Hash corto del commit + fecha de build, mostrado chico en el login y en el encabezado — para poder confirmar sin adivinar si el navegador está viendo el build más reciente o uno viejo en caché.
 
 ## En curso
 
