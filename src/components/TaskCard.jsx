@@ -29,12 +29,12 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
   const contexto = tarea.client_id ? reparacionesPorCliente?.get(tarea.client_id) : null
 
   return (
-    <div
-      className={
-        'rounded-2xl bg-paper text-ink p-4 flex gap-3 items-start shadow-sm ' +
-        (hecha ? 'opacity-50' : '')
-      }
-    >
+    // El circulo de marcar hecha queda SIEMPRE a opacidad completa (ver
+    // abajo), aunque la tarea este hecha -- si se atenuaba junto con el
+    // resto de la tarjeta, se perdia visualmente y no quedaba claro que
+    // seguia siendo el boton para reabrirla. Solo se atenua el contenido
+    // de texto (titulo, descripcion, etiquetas), no la tarjeta entera.
+    <div className="rounded-2xl bg-paper text-ink p-4 flex gap-3 items-start shadow-sm">
       <button
         type="button"
         onClick={() => onToggleHecho(tarea)}
@@ -47,7 +47,7 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
         <CheckIcon size={14} />
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className={'flex-1 min-w-0 ' + (hecha ? 'opacity-50' : '')}>
         <div className="flex items-start justify-between gap-2">
           <p className={'font-display font-semibold leading-snug ' + (hecha ? 'line-through' : '')}>
             {tarea.titulo}
