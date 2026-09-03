@@ -20,7 +20,7 @@
 ## Hecho (2026-09-03)
 
 - **Fix: el círculo para reabrir una tarea hecha era invisible.** No era un problema de opacidad (como parecía) sino que la clase de Tailwind que le daba color de fondo/borde nunca generó ninguna regla CSS real — quedaba transparente sobre transparente. Confirmado mirando el color calculado real en el navegador antes de corregirlo. Se cambió a estilo en línea (mismo patrón que ya usa la etiqueta de prioridad).
-- **Número de versión visible en la app.** Hash corto del commit + fecha de build, mostrado chico en el login y en el encabezado — para poder confirmar sin adivinar si el navegador está viendo el build más reciente o uno viejo en caché.
+- **Número de versión visible en la app.** Primero se probó con hash de commit + fecha de build (resultó confuso para el usuario) — se cambió a semver simple leído de `package.json` (`v0.1.0`, luego `v0.2.0`), mostrado chico en el login y en el encabezado. Subir a mano en cada cambio que valga la pena marcar.
 
 ## En curso
 
@@ -62,6 +62,18 @@ El usuario consideró que La Pizarra "está demasiado simple" y pidió desarroll
 - Tocar un día en Mes o Semana lleva directo a su vista Día.
 - A propósito NO incluye reparaciones de WheelOS (no tienen fecha de entrega real en la base — ver nota en el commit).
 - Primer diseño (un punto de 4px) no convenció al usuario ("se ve terrible") — se rehizo completo con insignias numeradas y las tres vistas. Verificado en las tres en producción.
+
+## Hecho (fase 5 — calendario funcional + pulido, 2026-09-03)
+
+Tras más feedback del usuario, dos rondas más de ajustes al calendario:
+
+- **Rejilla real en vista Mes.** Cada día pasó a ser una celda con borde y esquinas redondeadas (antes el número flotaba solo, sin nada que lo delimitara). La pastilla con el número de tareas quedó pegada abajo de la celda, no flotando sobre el número.
+- **Iniciales de los días de la semana en negrita.**
+- **Hueco real encontrado por el usuario: no había forma de ponerle fecha a una tarea.** El formulario "Nueva tarea" nunca tuvo un campo de fecha — por eso nada aparecía en el calendario al crear algo a mano. Se agregó el campo (opcional).
+- **El calendario ahora se auto-refresca** al crear cualquier tarea con fecha, sin tener que salir y volver a entrar a la pestaña (antes traía sus datos por separado y no se enteraba).
+- **Botón "+ Nueva tarea para este día"** dentro de la vista Día, precarga la fecha que se está mirando — así se puede agendar (ej. matriculación de un cliente) sin escribir la fecha a mano.
+- Verificado de punta a punta en producción: crear desde el botón de Día, ver que aparece sin recargar, y que la insignia del mes sube de número.
+- **Nota del usuario:** "está mucho mejor, creo que lo podemos hacer mejor, pero no quiero complicarlo mucho" — se pausó aquí a propósito, sin nuevas peticiones de diseño pendientes por ahora. Si en algún momento se retoma, no hay una idea concreta todavía de qué mejorar exactamente.
 
 ## Ideas para el futuro (de la misma lluvia de ideas, sin empezar todavía)
 
