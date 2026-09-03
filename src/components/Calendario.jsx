@@ -35,16 +35,18 @@ function sumarDias(date, cantidad) {
   return nueva
 }
 
-// Insignia con el numero de tareas de un dia -- reemplaza el punto suelto
-// de la version anterior. Se usa en la vista Mes (esquina del dia) y en
-// la vista Semana (al lado de cada fila).
-function InsigniaTareas({ cantidad, contraste }) {
+// Pastilla con el numero de tareas de un dia. Siempre pegada a un borde
+// del elemento que la contiene (abajo del todo en la celda de Mes, al
+// costado en la fila de Semana) -- nunca flotando sola sobre el numero.
+function PastillaTareas({ cantidad, contraste, className = '' }) {
   if (!cantidad) return null
   return (
     <span
       className={
-        'min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm ' +
-        (contraste ? 'bg-bg text-amber' : 'bg-amber text-bg')
+        'text-[10px] font-bold leading-none rounded-full px-1.5 py-0.5 ' +
+        (contraste ? 'bg-bg text-amber' : 'bg-amber text-bg') +
+        ' ' +
+        className
       }
     >
       {cantidad}
@@ -174,11 +176,13 @@ function VistaMes({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-paper/40 font-mono mb-1">
+      <div className="grid grid-cols-7 gap-1.5 text-center text-xs text-paper/40 font-mono mb-1.5">
         {DIAS_SEMANA_CORTO.map((d, i) => (
           <span key={`${d}-${i}`}>{d}</span>
         ))}
       </div>
+      {/* Cada dia es una celda con borde propio, como una cuadricula real
+          -- antes el numero flotaba solo, sin nada que delimitara el dia. */}
       <div className="grid grid-cols-7 gap-1.5">
         {dias.map((dia, i) => {
           if (!dia) return <div key={`vacio-${i}`} />
@@ -191,12 +195,12 @@ function VistaMes({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
               type="button"
               onClick={() => onSeleccionarDia(dia)}
               className={
-                'aspect-square rounded-xl text-sm flex flex-col items-center justify-center gap-0.5 transition-colors ' +
-                (esHoy ? 'bg-amber text-bg font-bold' : 'text-paper/80 hover:bg-paper/10')
+                'aspect-square rounded-lg border flex flex-col items-center justify-between p-1 transition-colors ' +
+                (esHoy ? 'border-amber border-2' : 'border-paper/10 hover:border-paper/30')
               }
             >
-              {dia.getDate()}
-              <InsigniaTareas cantidad={cantidad} contraste={esHoy} />
+              <span className={'text-sm ' + (esHoy ? 'font-bold text-amber' : 'text-paper/80')}>{dia.getDate()}</span>
+              <PastillaTareas cantidad={cantidad} className="w-full text-center" />
             </button>
           )
         })}
@@ -230,7 +234,7 @@ function VistaSemana({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
             <span className="font-medium capitalize">
               {dia.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
             </span>
-            <InsigniaTareas cantidad={cantidad} contraste={esHoy} />
+            <PastillaTareas cantidad={cantidad} contraste={esHoy} />
           </button>
         )
       })}
