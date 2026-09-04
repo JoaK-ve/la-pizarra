@@ -24,7 +24,9 @@
 
 ## Hecho (2026-09-04)
 
-- **Dominio propio: `lapizarra.wheelos.es`.** `wheelos.es` ya era zona de esta misma cuenta de Cloudflare, así que se agregó como dominio personalizado del Worker (`wrangler.jsonc` → `routes`) y Cloudflare creó el DNS y el certificado SSL solo, sin pasos manuales. Verificado en vivo (login carga con SSL válido). La URL vieja de `workers.dev` quedó desactivada (Wrangler lo hace por defecto al agregar un dominio personalizado) — se puede reactivar como respaldo si hace falta.
+- **Dominio propio: `lapizarra.wheelos.es`.** `wheelos.es` ya era zona de esta misma cuenta de Cloudflare, así que se agregó como dominio personalizado del Worker (`wrangler.jsonc` → `routes`) y Cloudflare creó el DNS y el certificado SSL solo, sin pasos manuales. Verificado en vivo (login carga con SSL válido). La URL vieja de `workers.dev` se reactivó a pedido del usuario como respaldo (`workers_dev: true`) — ambas URLs sirven la misma app.
+- **Texto en voseo argentino corregido.** "Entrá con tu cuenta de WheelOS" → "Entra…" (Login.jsx) y "No tenés permiso…" → "No tienes permiso…" (useTareas.js, mensaje de error de RLS). Se revisó todo `src/` con varios patrones de voseo y no queda ninguno más.
+- **Recordatorios v1: banner dentro de la app (v0.3.0).** Pedido explícito del usuario. Arriba de la pantalla, sin importar la pestaña activa, avisa de tareas pendientes con `fecha_límite` de hoy (ámbar) o ya vencida (rojo) — reutiliza los datos que ya se traían para el Calendario, sin pedir nada nuevo a Supabase. Tocar una tarea del banner abre su detalle de siempre. **Verificado por el usuario en producción (2026-09-04): "sí, ya la vi funcionar".** No incluye push ni email todavía — solo avisa si alguien abre la app (ver opciones 2 y 3 evaluadas abajo).
 
 ## En curso
 
@@ -33,7 +35,7 @@
 
 ## Próximo (sin fecha aún)
 
-- **Recordatorios/notificaciones — pedido explícito del usuario (2026-09-04), prioridad alta cuando se retome.** Joaquín ("Joaco") ya está usando la app; falta entrenar a Lili. Quiere que la app avise de algo (no solo mostrar la lista) — sin definir todavía el mecanismo (¿push? ¿algo dentro de la app al abrir?) ni el disparador (¿fecha_límite próxima? ¿tarea asignada nueva?). Definir con el usuario antes de construir.
+- **Recordatorios v2 — si el banner dentro de la app no alcanza.** Se evaluaron con el usuario dos opciones para subir de nivel: (a) notificación push real (Service Worker + VAPID + tabla de suscripciones + Cron Trigger en Cloudflare) — funciona con la app cerrada, pero en iPhone exige instalarla primero en la pantalla de inicio; (b) aviso por email (Cloudflare Email Sending + Cron Trigger) — más simple que el push, pero depende de que el equipo revise el correo seguido, que no está confirmado. Sin decidir todavía cuál (o si ninguna hace falta por ahora).
 - Confirmar si la fila de prueba "llamar a Ecoscooting" se borra antes de empezar a usar la app en serio.
 - Revisar con el usuario las decisiones tomadas sin confirmación explícita: paleta de color para prioridad normal/baja, orden de la lista (`created_at desc`).
 
