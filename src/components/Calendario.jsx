@@ -229,7 +229,11 @@ function PuntosPrioridad({ tareas }) {
       {visibles.map((tarea) => (
         <span
           key={tarea.id}
-          className="w-1.5 h-1.5 rounded-full shrink-0"
+          // inline-block es obligatorio aca: un <span> es inline por
+          // defecto, y sin contenido de texto un elemento inline IGNORA
+          // width/height del todo -- por eso los puntos no se veian, no
+          // era un tema de la variable de color (esa se aplicaba bien).
+          className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
           style={{ backgroundColor: `var(--color-prioridad-${tarea.prioridad})` }}
         />
       ))}
