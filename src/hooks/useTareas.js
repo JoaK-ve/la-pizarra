@@ -52,7 +52,7 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
 
       if (error) return { ok: false, message: error.message }
       if (!data || data.length === 0) {
-        return { ok: false, message: 'No tenés permiso para modificar esta tarea.' }
+        return { ok: false, message: 'No tienes permiso para modificar esta tarea.' }
       }
       await refetch()
       return { ok: true }
