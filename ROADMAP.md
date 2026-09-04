@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-03.
+Última actualización: 2026-09-04.
 
 ## Hecho (V1)
 
@@ -21,6 +21,10 @@
 
 - **Fix: el círculo para reabrir una tarea hecha era invisible.** No era un problema de opacidad (como parecía) sino que la clase de Tailwind que le daba color de fondo/borde nunca generó ninguna regla CSS real — quedaba transparente sobre transparente. Confirmado mirando el color calculado real en el navegador antes de corregirlo. Se cambió a estilo en línea (mismo patrón que ya usa la etiqueta de prioridad).
 - **Número de versión visible en la app.** Primero se probó con hash de commit + fecha de build (resultó confuso para el usuario) — se cambió a semver simple leído de `package.json` (`v0.1.0`, luego `v0.2.0`), mostrado chico en el login y en el encabezado. Subir a mano en cada cambio que valga la pena marcar.
+
+## Hecho (2026-09-04)
+
+- **Dominio propio: `lapizarra.wheelos.es`.** `wheelos.es` ya era zona de esta misma cuenta de Cloudflare, así que se agregó como dominio personalizado del Worker (`wrangler.jsonc` → `routes`) y Cloudflare creó el DNS y el certificado SSL solo, sin pasos manuales. Verificado en vivo (login carga con SSL válido). La URL vieja de `workers.dev` quedó desactivada (Wrangler lo hace por defecto al agregar un dominio personalizado) — se puede reactivar como respaldo si hace falta.
 
 ## En curso
 
