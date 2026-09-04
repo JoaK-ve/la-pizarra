@@ -193,7 +193,7 @@ function VistaMes({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
         {dias.map((dia, i) => {
           if (!dia) return <div key={`vacio-${i}`} />
           const clave = formatearFechaLocal(dia)
-          const cantidad = tareasPorDia.get(clave)?.length ?? 0
+          const tareasDelDia = tareasPorDia.get(clave) ?? []
           const esHoy = clave === hoyClave
           return (
             <button
@@ -201,17 +201,40 @@ function VistaMes({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
               type="button"
               onClick={() => onSeleccionarDia(dia)}
               className={
-                'aspect-square rounded-lg border flex flex-col items-center justify-between p-1 transition-colors ' +
+                'aspect-square rounded-lg border flex flex-col items-center justify-center gap-1 p-1 transition-colors ' +
                 (esHoy ? 'border-amber border-2' : 'border-paper/10 hover:border-paper/30')
               }
             >
               <span className={'text-sm ' + (esHoy ? 'font-bold text-amber' : 'text-paper/80')}>{dia.getDate()}</span>
-              <PastillaTareas cantidad={cantidad} className="w-full text-center" />
+              <PuntosPrioridad tareas={tareasDelDia} />
             </button>
           )
         })}
       </div>
     </div>
+  )
+}
+
+// Un punto de color por tarea, segun su prioridad (mismos colores que la
+// etiqueta de prioridad en TaskCard) -- reemplaza la pastilla numerada de
+// antes: dice QUE tipo de dia es (hay algo urgente ese dia?), no solo
+// cuantas tareas hay. Elegido por el usuario entre 3 opciones (2026-09-04).
+function PuntosPrioridad({ tareas }) {
+  if (tareas.length === 0) return null
+  const MAX_PUNTOS = 4
+  const visibles = tareas.slice(0, MAX_PUNTOS)
+  const restantes = tareas.length - visibles.length
+  return (
+    <span className="flex items-center gap-1 flex-wrap justify-center">
+      {visibles.map((tarea) => (
+        <span
+          key={tarea.id}
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ backgroundColor: `var(--color-prioridad-${tarea.prioridad})` }}
+        />
+      ))}
+      {restantes > 0 && <span className="text-[9px] leading-none text-paper/50">+{restantes}</span>}
+    </span>
   )
 }
 
