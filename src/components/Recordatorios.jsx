@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { formatearFechaLocal } from '../utils/fechas'
+import { formatearFechaLocal, soloFecha } from '../utils/fechas'
 
 // Primera version de "recordatorios" (pedido del usuario, 2026-09-04):
 // aviso dentro de la app, sin notificaciones push todavia -- solo avisa
@@ -13,8 +13,10 @@ export default function Recordatorios({ tareas, onAbrirDetalle }) {
   const { vencidas, hoy } = useMemo(() => {
     const pendientes = tareas.filter((t) => t.estado === 'pendiente')
     return {
-      vencidas: pendientes.filter((t) => t.fecha_limite < hoyClave),
-      hoy: pendientes.filter((t) => t.fecha_limite === hoyClave),
+      // soloFecha() por si algun registro viejo quedo con hora/zona pegada
+      // en fecha_limite -- ver la nota en utils/fechas.js.
+      vencidas: pendientes.filter((t) => soloFecha(t.fecha_limite) < hoyClave),
+      hoy: pendientes.filter((t) => soloFecha(t.fecha_limite) === hoyClave),
     }
   }, [tareas, hoyClave])
 
@@ -23,7 +25,7 @@ export default function Recordatorios({ tareas, onAbrirDetalle }) {
   return (
     <div className="px-4 sm:px-6 mt-4 space-y-2">
       {vencidas.length > 0 && (
-        <FilaRecordatorio urgente etiqueta={etiquetaCantidad(vencidas.length, 'vencida')} tareas={vencidas} onAbrirDetalle={onAbrirDetalle} />
+        <FilaRecordatorio urgente etiqueta={etiquetaCantidad(vencidas.length, 'vencidas')} tareas={vencidas} onAbrirDetalle={onAbrirDetalle} />
       )}
       {hoy.length > 0 && (
         <FilaRecordatorio etiqueta={etiquetaCantidad(hoy.length, 'para hoy')} tareas={hoy} onAbrirDetalle={onAbrirDetalle} />
@@ -32,8 +34,9 @@ export default function Recordatorios({ tareas, onAbrirDetalle }) {
   )
 }
 
-function etiquetaCantidad(cantidad, sufijo) {
-  return cantidad === 1 ? `1 tarea ${sufijo}` : `${cantidad} tareas ${sufijo}`
+function etiquetaCantidad(cantidad, plural) {
+  const singular = plural.endsWith('s') ? plural.slice(0, -1) : plural
+  return cantidad === 1 ? `1 tarea ${singular}` : `${cantidad} tareas ${plural}`
 }
 
 // El color va por estilo en linea cuando es "urgente" (rojo), no por clase

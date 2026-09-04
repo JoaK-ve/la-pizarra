@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import TaskCard from './TaskCard'
 import { PlusIcon } from './icons'
-import { formatearFechaLocal } from '../utils/fechas'
+import { formatearFechaLocal, soloFecha } from '../utils/fechas'
 
 const DIAS_SEMANA_CORTO = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 const MESES = [
@@ -72,7 +72,7 @@ export default function Calendario({
   const tareasPorDia = useMemo(() => {
     const mapa = new Map()
     for (const tarea of tareas) {
-      const clave = tarea.fecha_limite
+      const clave = soloFecha(tarea.fecha_limite)
       if (!mapa.has(clave)) mapa.set(clave, [])
       mapa.get(clave).push(tarea)
     }
