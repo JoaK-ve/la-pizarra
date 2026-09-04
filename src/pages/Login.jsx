@@ -23,7 +23,7 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
         <div>
           <h1 className="font-display text-2xl font-bold text-paper">La Pizarra</h1>
-          <p className="text-paper/60 text-sm mt-1">Entrá con tu cuenta de WheelOS.</p>
+          <p className="text-paper/60 text-sm mt-1">Entra con tu cuenta de WheelOS.</p>
         </div>
 
         <div>
