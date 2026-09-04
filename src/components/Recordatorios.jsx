@@ -39,27 +39,24 @@ function etiquetaCantidad(cantidad, plural) {
   return cantidad === 1 ? `1 tarea ${singular}` : `${cantidad} tareas ${plural}`
 }
 
-// El color va por estilo en linea cuando es "urgente" (rojo), no por clase
-// de Tailwind -- ver la nota en TaskCard.jsx: las clases que referencian
-// una variable CSS de prioridad no generan estilo real en este proyecto.
-// El tono "hoy" usa ambar, que si es un color propio de Tailwind (definido
-// en @theme) y ya se usa asi en el resto de la app sin problema.
+// "Vencidas" se queda en la familia del rojo/urgente (es informacion de
+// urgencia real, no se pasa a verde de marca) -- diseño v2, 2026-09-05.
+// "Para hoy" no es un dato de prioridad, es un acento general de la app,
+// asi que sigue la regla nueva: pasa de ambar a --color-brand.
 function FilaRecordatorio({ urgente, etiqueta, tareas, onAbrirDetalle }) {
   return (
-    <div
-      className={'rounded-xl px-4 py-3 border ' + (urgente ? '' : 'bg-amber/15 border-amber/30')}
-      style={urgente ? { backgroundColor: 'rgba(178, 58, 46, 0.15)', borderColor: 'rgba(178, 58, 46, 0.4)' } : undefined}
-    >
-      <p className={'text-xs font-mono uppercase tracking-wide font-semibold ' + (urgente ? 'text-[--color-prioridad-urgente]' : 'text-amber')}>
-        {etiqueta}
-      </p>
+    <div className={'rounded-xl p-4 border ' + (urgente ? 'bg-priority-urgente/10 border-priority-urgente/40' : 'bg-brand/10 border-brand/40')}>
+      <p className="font-display font-bold text-text text-sm">{etiqueta}</p>
       <ul className="mt-1.5 space-y-1">
         {tareas.map((tarea) => (
           <li key={tarea.id}>
             <button
               type="button"
               onClick={() => onAbrirDetalle(tarea)}
-              className="text-sm text-paper/90 hover:text-paper text-left underline decoration-paper/20 underline-offset-2"
+              className={
+                'text-sm underline underline-offset-2 text-left ' +
+                (urgente ? 'text-priority-urgente/90 hover:text-priority-urgente' : 'text-brand-light hover:text-brand')
+              }
             >
               {tarea.titulo}
             </button>

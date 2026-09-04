@@ -22,39 +22,39 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
         <div>
-          <h1 className="font-display text-2xl font-bold text-paper">La Pizarra</h1>
-          <p className="text-paper/60 text-sm mt-1">Entra con tu cuenta de WheelOS.</p>
+          <h1 className="font-display text-2xl font-bold text-text">La Pizarra</h1>
+          <p className="text-text/60 text-sm mt-1">Entra con tu cuenta de WheelOS.</p>
         </div>
 
         <div>
-          <label className="text-xs font-mono uppercase tracking-wide text-paper/50">Email</label>
+          <label className="text-xs font-mono uppercase tracking-wide text-text/50">Email</label>
           <input
             type="email"
             required
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full mt-1 rounded-xl border border-paper/20 bg-paper/5 px-3 py-2.5 text-paper outline-none focus:border-amber"
+            className="w-full mt-1 rounded-xl border border-text/20 bg-text/5 px-3 py-2.5 text-text outline-none focus:border-brand"
           />
         </div>
 
         <div>
-          <label className="text-xs font-mono uppercase tracking-wide text-paper/50">Contraseña</label>
+          <label className="text-xs font-mono uppercase tracking-wide text-text/50">Contraseña</label>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full mt-1 rounded-xl border border-paper/20 bg-paper/5 px-3 py-2.5 text-paper outline-none focus:border-amber"
+            className="w-full mt-1 rounded-xl border border-text/20 bg-text/5 px-3 py-2.5 text-text outline-none focus:border-brand"
           />
         </div>
 
-        {error && <p className="text-sm text-[--color-prioridad-urgente]">{error}</p>}
+        {error && <p className="text-sm text-priority-urgente">{error}</p>}
 
         <button
           type="submit"
           disabled={enviando}
-          className="w-full rounded-xl bg-amber text-bg font-display font-semibold py-2.5 disabled:opacity-50"
+          className="w-full rounded-xl bg-brand text-brand-contrast font-display font-semibold py-2.5 disabled:opacity-50"
         >
           {enviando ? 'Entrando…' : 'Entrar'}
         </button>

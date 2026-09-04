@@ -19,7 +19,7 @@ function AppShell() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-display text-sm font-bold text-paper/40">Cargando…</p>
+        <p className="font-display text-sm font-bold text-text/40">Cargando…</p>
       </div>
     )
   }

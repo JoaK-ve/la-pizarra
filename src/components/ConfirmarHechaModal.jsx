@@ -38,31 +38,32 @@ export default function ConfirmarHechaModal({ tarea, onClose, onToggleHecho, onN
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
-      <div className="w-full sm:max-w-sm bg-paper text-ink rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+      <div className="w-full sm:max-w-sm bg-surface text-surface-text rounded-t-3xl sm:rounded-xl p-6 shadow-2xl space-y-4">
         <div className="flex items-start justify-between gap-2">
-          <h2 className="font-display text-lg font-semibold">¿Marcar esta tarea como hecha?</h2>
-          <button type="button" onClick={onClose} className="text-ink/50 hover:text-ink shrink-0">
+          <h2 className="font-display font-bold text-lg">¿Marcar como hecha?</h2>
+          <button type="button" onClick={onClose} className="text-surface-text/50 hover:text-surface-text shrink-0">
             <CloseIcon size={20} />
           </button>
         </div>
 
         <div>
-          <label className="text-xs font-mono uppercase tracking-wide text-ink/50">¿Qué hiciste? (opcional)</label>
-          <input
+          <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Nota opcional (ej. qué se hizo)</label>
+          <textarea
             autoFocus
+            rows={2}
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            className="w-full mt-1 rounded-xl border border-ink/15 bg-white/60 px-3 py-2 outline-none focus:border-amber"
+            className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text text-sm p-2 outline-none focus:border-brand resize-none"
           />
         </div>
 
-        {error && <p className="text-sm text-[--color-prioridad-urgente]">{error}</p>}
+        {error && <p className="text-sm text-priority-urgente">{error}</p>}
 
         <div className="flex gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-ink/20 font-display font-semibold py-2.5"
+            className="flex-1 rounded-xl border border-surface-text/20 text-surface-text font-display font-semibold py-2.5"
           >
             Cancelar
           </button>
@@ -70,7 +71,7 @@ export default function ConfirmarHechaModal({ tarea, onClose, onToggleHecho, onN
             type="button"
             onClick={handleConfirmar}
             disabled={enviando}
-            className="flex-1 rounded-xl bg-amber text-bg font-display font-semibold py-2.5 disabled:opacity-50"
+            className="flex-1 rounded-xl bg-brand text-brand-contrast font-display font-semibold py-2.5 disabled:opacity-50"
           >
             {enviando ? 'Guardando…' : 'Confirmar'}
           </button>

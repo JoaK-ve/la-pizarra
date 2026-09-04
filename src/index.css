@@ -2,20 +2,35 @@
 
 @theme {
   --color-bg: #1c1f1e;
-  --color-paper: #ede8de;
-  --color-paper-dim: #ddd6c7;
-  --color-ink: #1c1f1e;
-  --color-amber: #d98e3b;
+  --color-text: #ede8de;
 
-  /* Prioridad de tareas. La instruccion original ("normal/seguimiento
+  /* Superficie clara de las tarjetas/modales -- contraste crema/oscuro,
+     parte central de la identidad visual (no es lo mismo que --color-text,
+     que es el texto claro sobre el fondo oscuro de la pagina). */
+  --color-surface: #f2efe4;
+  --color-surface-text: #1c1f1e;
+  --color-surface-text-muted: #6b6558;
+
+  /* Prioridad de tareas -- son DATO real de cada tarea, no decoracion.
+     "nuevo" no se ofrece en el formulario (lo usa La Secre para marcar
+     "llego hoy/reciente") pero sigue necesitando su propio color para la
+     etiqueta en TaskCard. La instruccion original ("normal/seguimiento
      neutro") tiene una ambiguedad: "seguimiento" ya tiene su propio color
-     (#C98A2C) dos palabras antes, asi que se interpreta como "normal Y baja
-     van en un tono neutro" -- ver README, seccion de ambiguedades. */
-  --color-prioridad-urgente: #b23a2e;
-  --color-prioridad-seguimiento: #c98a2c;
-  --color-prioridad-normal: #8c8478;
-  --color-prioridad-baja: #8c8478;
-  --color-prioridad-nuevo: #4c7a5e;
+     dos palabras antes, asi que se interpreta como "normal Y baja van en
+     un tono neutro" -- ver README, seccion de ambiguedades. */
+  --color-priority-urgente: #b23a2e;
+  --color-priority-seguimiento: #c98a2c;
+  --color-priority-normal: #8c8478;
+  --color-priority-baja: #8c8478;
+  --color-priority-nuevo: #4c7a5e;
+
+  /* Marca (verde del logo de TG Patinetes) -- reservado para navegacion y
+     acciones (tabs activos, boton de nueva tarea, aro de "hoy"). El ambar
+     de --color-priority-seguimiento queda EXCLUSIVO para esa prioridad, ya
+     no se reusa como acento general de la app. */
+  --color-brand: #5c9e3a;
+  --color-brand-light: #8bc34a;
+  --color-brand-contrast: #12210b;
 
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -27,7 +42,7 @@
 
 body {
   background-color: var(--color-bg);
-  color: var(--color-paper);
+  color: var(--color-text);
   font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

@@ -127,8 +127,8 @@ export default function Tareas() {
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
           <div>
-            <h1 className="font-display text-xl font-bold text-paper">La Pizarra</h1>
-            {profile && <p className="text-paper/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
+            <h1 className="font-display text-xl font-bold text-text">La Pizarra</h1>
+            {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
             <BuildVersion className="mt-0.5" />
           </div>
 
@@ -138,13 +138,13 @@ export default function Tareas() {
               <button
                 type="button"
                 onClick={abrirNuevaTarea}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-amber text-bg font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-brand text-brand-contrast font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
               >
                 <PlusIcon size={16} />
                 Nueva tarea
               </button>
             )}
-            <button type="button" onClick={signOut} className="text-paper/50 hover:text-paper p-1" aria-label="Cerrar sesión">
+            <button type="button" onClick={signOut} className="text-text/50 hover:text-text p-1" aria-label="Cerrar sesión">
               <LogoutIcon size={20} />
             </button>
           </div>
@@ -184,21 +184,21 @@ export default function Tareas() {
               ))}
             </div>
 
-            <label className="px-4 sm:px-6 mt-3 flex items-center gap-2 text-sm text-paper/60">
+            <label className="px-4 sm:px-6 mt-3 flex items-center gap-2 text-sm text-text/60">
               <input
                 type="checkbox"
                 checked={mostrarHechas}
                 onChange={(e) => setMostrarHechas(e.target.checked)}
-                className="accent-amber"
+                className="accent-brand"
               />
               Mostrar hechas
             </label>
 
             <main className="px-4 sm:px-6 mt-4 space-y-2.5">
-              {loading && <p className="text-paper/40 text-sm">Cargando…</p>}
-              {error && <p className="text-sm text-[--color-prioridad-urgente]">{error.message}</p>}
+              {loading && <p className="text-text/40 text-sm">Cargando…</p>}
+              {error && <p className="text-sm text-priority-urgente">{error.message}</p>}
               {!loading && !error && tareas.length === 0 && (
-                <p className="text-paper/40 text-sm">No hay tareas para este filtro.</p>
+                <p className="text-text/40 text-sm">No hay tareas para este filtro.</p>
               )}
 
               {tareas.map((tarea) => (
@@ -218,10 +218,10 @@ export default function Tareas() {
 
         {vista === 'reparaciones' && (
           <main className="px-4 sm:px-6 mt-4 space-y-2.5">
-            {loadingReparaciones && <p className="text-paper/40 text-sm">Cargando…</p>}
-            {errorReparaciones && <p className="text-sm text-[--color-prioridad-urgente]">{errorReparaciones.message}</p>}
+            {loadingReparaciones && <p className="text-text/40 text-sm">Cargando…</p>}
+            {errorReparaciones && <p className="text-sm text-priority-urgente">{errorReparaciones.message}</p>}
             {!loadingReparaciones && !errorReparaciones && reparaciones.length === 0 && (
-              <p className="text-paper/40 text-sm">No hay reparaciones activas.</p>
+              <p className="text-text/40 text-sm">No hay reparaciones activas ahora mismo.</p>
             )}
 
             {reparaciones.map((reparacion) => (
@@ -254,7 +254,7 @@ export default function Tareas() {
         <button
           type="button"
           onClick={abrirNuevaTarea}
-          className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-amber text-bg shadow-lg flex items-center justify-center"
+          className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand text-brand-contrast shadow-lg flex items-center justify-center"
           aria-label="Nueva tarea"
         >
           <PlusIcon size={24} />
