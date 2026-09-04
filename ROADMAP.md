@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-04.
+Última actualización: 2026-09-04 (tarde).
 
 ## Hecho (V1)
 
@@ -28,16 +28,17 @@
 
 ## En curso
 
-- **Validar uso real con el equipo.** La app está desplegada pero nadie del taller (Lili, Joaquín, JoaK) ha confirmado poder loguearse y usarla con su cuenta real. Es el paso que falta para pasar de "desplegado" a "en uso".
+- **Validar uso real con el equipo (2026-09-04: en marcha).** Joaquín ("Joaco") ya fue dado de alta y está usando la app. Falta entrenar a Lili para que la use — pendiente por parte del usuario, no técnico.
+- **Diseño visual del calendario — el usuario sigue sin estar "encantado" (2026-09-04, reafirmado).** Misma nota que en fase 5: sin una idea concreta todavía de qué mejorar, pausado a propósito por ahora.
 
 ## Próximo (sin fecha aún)
 
+- **Recordatorios/notificaciones — pedido explícito del usuario (2026-09-04), prioridad alta cuando se retome.** Joaquín ("Joaco") ya está usando la app; falta entrenar a Lili. Quiere que la app avise de algo (no solo mostrar la lista) — sin definir todavía el mecanismo (¿push? ¿algo dentro de la app al abrir?) ni el disparador (¿fecha_límite próxima? ¿tarea asignada nueva?). Definir con el usuario antes de construir.
 - Confirmar si la fila de prueba "llamar a Ecoscooting" se borra antes de empezar a usar la app en serio.
 - Revisar con el usuario las decisiones tomadas sin confirmación explícita: paleta de color para prioridad normal/baja, orden de la lista (`created_at desc`).
 
 ## Fuera de alcance (fases futuras, no decidido cuándo)
 
-- Notificaciones / recordatorios.
 - Estados intermedios de tarea (ej. "en progreso") — hoy el toggle es binario a propósito.
 
 ## Deuda técnica pendiente (no bloqueante)
