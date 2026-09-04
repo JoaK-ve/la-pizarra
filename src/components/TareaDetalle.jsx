@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useTareaNotas } from '../hooks/useTareaNotas'
+import { soloFecha } from '../utils/fechas'
 import { CloseIcon } from './icons'
+
+// Parsea "YYYY-MM-DD" a mano (no `new Date(string)`) para no depender de
+// como el navegador interprete la zona horaria de un string ISO.
+function formatearFechaLegible(fechaLimite) {
+  const [y, m, d] = soloFecha(fechaLimite).split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
+}
 
 // Se abre al tocar el CONTENIDO de una tarjeta de tarea (no el circulo).
 // Muestra la bitacora completa y deja agregar una nota nueva en cualquier
@@ -30,6 +38,11 @@ export default function TareaDetalle({ tarea, onClose, onNotaAgregada }) {
           <div className="min-w-0">
             <h2 className="font-display text-lg font-semibold leading-snug">{tarea.titulo}</h2>
             {tarea.descripcion && <p className="text-sm text-ink/60 mt-1">{tarea.descripcion}</p>}
+            {tarea.fecha_limite && (
+              <p className="text-xs font-mono uppercase tracking-wide text-ink/40 mt-1.5">
+                📅 {formatearFechaLegible(tarea.fecha_limite)}
+              </p>
+            )}
           </div>
           <button type="button" onClick={onClose} className="text-ink/50 hover:text-ink shrink-0">
             <CloseIcon size={20} />
