@@ -10,6 +10,7 @@ import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
+import Recordatorios from '../components/Recordatorios'
 import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
@@ -97,12 +98,22 @@ export default function Tareas() {
     setPrefillModal(null)
   }
 
+  // Igual que crearTareaYRefrescar arriba: ademas de marcar/reabrir la
+  // tarea, refresca el Calendario -- si no, una tarea marcada hecha desde
+  // el banner de Recordatorios (o reabierta) seguiria apareciendo ahi
+  // hasta salir y volver a entrar a esa pestaña.
+  async function toggleHechoYRefrescar(tarea) {
+    const resultado = await toggleHecho(tarea)
+    recargarCalendario()
+    return resultado
+  }
+
   // Tocar el circulo: si la tarea ya esta hecha, reabrirla es instantaneo
   // (sin preguntar nada). Si esta pendiente, se pide confirmar (y de paso
   // se puede dejar una nota) antes de cerrarla -- ver ConfirmarHechaModal.
   function manejarClickCirculo(tarea) {
     if (tarea.estado === 'hecho') {
-      toggleHecho(tarea)
+      toggleHechoYRefrescar(tarea)
     } else {
       setTareaConfirmarHecha(tarea)
     }
@@ -138,6 +149,10 @@ export default function Tareas() {
             </button>
           </div>
         </header>
+
+        {/* Avisa de tareas vencidas o para hoy, sin importar en que
+            pestaña estes -- ver Recordatorios.jsx. */}
+        <Recordatorios tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />
 
         {/* Cambia entre la lista de tareas de siempre y las reparaciones
             activas del taller (leidas de WheelOS, de solo lectura). */}
@@ -254,7 +269,7 @@ export default function Tareas() {
         <ConfirmarHechaModal
           tarea={tareaConfirmarHecha}
           onClose={() => setTareaConfirmarHecha(null)}
-          onToggleHecho={toggleHecho}
+          onToggleHecho={toggleHechoYRefrescar}
           onNotaAgregada={recargarContadorNotas}
         />
       )}

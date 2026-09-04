@@ -1,22 +1,13 @@
 import { useMemo, useState } from 'react'
 import TaskCard from './TaskCard'
 import { PlusIcon } from './icons'
+import { formatearFechaLocal } from '../utils/fechas'
 
 const DIAS_SEMANA_CORTO = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 const MESES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ]
-
-// "YYYY-MM-DD" en hora LOCAL (no UTC) -- fecha_limite es tipo `date` en
-// Postgres, supabase-js la devuelve tal cual ese string, sin conversion de
-// zona horaria.
-function formatearFechaLocal(date) {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
 
 function capitalizar(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1)
