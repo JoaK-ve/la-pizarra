@@ -265,7 +265,11 @@ function VistaMes({
                 // al ring si no se la das explicita) -- se veia verde oscuro
                 // en vez del verde de marca solido.
                 (esHoy ? 'ring-2 ring-brand/100 ring-inset border-transparent' : 'border-text/10') +
-                (delMes ? ' opacity-30' : '') +
+                // `delMes` = SI pertenece al mes que se esta mostrando --
+                // la atenuacion va cuando NO pertenece (dias de relleno del
+                // mes anterior/siguiente). Estaba al reves: atenuaba los 30
+                // dias reales del mes y dejaba los de relleno a full.
+                (!delMes ? ' opacity-30' : '') +
                 (esSeleccionado && !esHoy ? ' border-text/40' : '')
               }
             >
