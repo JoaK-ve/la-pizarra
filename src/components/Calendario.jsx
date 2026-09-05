@@ -23,21 +23,15 @@ const CLASE_BG_PRIORIDAD = {
   nuevo: 'bg-priority-normal',
 }
 
-// Para el circulo de conteo en Vista Semana: que tan urgente es lo mas
-// urgente que hay ese dia (numero mas bajo = mas urgente).
-const RANGO_PRIORIDAD = { urgente: 0, seguimiento: 1, normal: 2, baja: 2, nuevo: 2 }
-
-function prioridadMasAlta(tareasDelDia) {
-  let mejor = null
-  let mejorRango = Infinity
-  for (const tarea of tareasDelDia) {
-    const rango = RANGO_PRIORIDAD[tarea.prioridad] ?? 2
-    if (rango < mejorRango) {
-      mejorRango = rango
-      mejor = tarea.prioridad
-    }
-  }
-  return mejor
+// Color real del borde izquierdo de cada renglon de agenda (Semana) --
+// inline style, no clase de Tailwind, porque el color depende del dato de
+// cada tarea (mismo patron que la variable dinamica en TaskCard.jsx).
+const COLOR_BORDE_PRIORIDAD = {
+  urgente: 'var(--color-priority-urgente)',
+  seguimiento: 'var(--color-priority-seguimiento)',
+  normal: 'var(--color-priority-normal)',
+  baja: 'var(--color-priority-normal)',
+  nuevo: 'var(--color-priority-normal)',
 }
 
 function capitalizar(texto) {
@@ -333,35 +327,37 @@ function VistaSemana({ fechaAncla, tareasPorDia, hoyClave, onSeleccionarDia }) {
   }, [fechaAncla])
 
   return (
-    <div className="grid grid-flow-col overflow-x-auto gap-2 [grid-auto-columns:minmax(90px,1fr)] pb-1">
+    <div className="grid grid-flow-col overflow-x-auto gap-2 [grid-auto-columns:minmax(110px,1fr)] pb-1">
       {dias.map((dia) => {
         const clave = formatearFechaLocal(dia)
         const tareasDelDia = tareasPorDia.get(clave) ?? []
         const esHoy = clave === hoyClave
-        const mejorPrioridad = prioridadMasAlta(tareasDelDia)
         return (
           <button
             key={clave}
             type="button"
             onClick={() => onSeleccionarDia(dia)}
             className={
-              'bg-bg border rounded-lg p-2.5 flex flex-col items-center gap-2 min-h-[76px] transition-colors hover:border-text/30 ' +
+              'bg-bg border rounded-lg p-2 flex flex-col gap-1.5 min-h-[90px] text-left transition-colors hover:border-text/30 ' +
               (esHoy ? 'border-brand' : 'border-text/10')
             }
           >
-            <span className="text-xs font-medium text-text/80 capitalize text-center">
+            <span className={'text-xs font-medium capitalize text-center ' + (esHoy ? 'text-brand-light' : 'text-text/80')}>
               {dia.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })}
             </span>
-            {tareasDelDia.length > 0 && (
-              <span
-                className={
-                  'w-5.5 h-5.5 rounded-full flex items-center justify-center text-white text-xs font-bold ' +
-                  (CLASE_BG_PRIORIDAD[mejorPrioridad] ?? CLASE_BG_PRIORIDAD.normal)
-                }
-              >
-                {tareasDelDia.length}
-              </span>
-            )}
+            {/* Titulo real de cada tarea (no solo un numero) -- pedido del
+                usuario tras ver el "agenda-item" del mockup, 2026-09-05. */}
+            <div className="space-y-1">
+              {tareasDelDia.map((tarea) => (
+                <p
+                  key={tarea.id}
+                  className="text-[11px] leading-tight font-semibold bg-surface text-surface-text rounded px-1.5 py-1 truncate border-l-2"
+                  style={{ borderLeftColor: COLOR_BORDE_PRIORIDAD[tarea.prioridad] ?? COLOR_BORDE_PRIORIDAD.normal }}
+                >
+                  {tarea.titulo}
+                </p>
+              ))}
+            </div>
           </button>
         )
       })}
