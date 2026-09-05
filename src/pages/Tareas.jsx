@@ -6,6 +6,7 @@ import { useReparacionesClientes } from '../hooks/useReparacionesClientes'
 import { useReparacionesActivas } from '../hooks/useReparacionesActivas'
 import { useTareasConFecha } from '../hooks/useTareasConFecha'
 import { useContadorNotas } from '../hooks/useContadorNotas'
+import { useWorkshop } from '../hooks/useWorkshop'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
@@ -27,6 +28,7 @@ const CONTEXTOS = [
 export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
+  const { workshop } = useWorkshop()
   const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
   const [contexto, setContexto] = useState('todos')
   const [asignadoA, setAsignadoA] = useState('todos')
@@ -127,13 +129,21 @@ export default function Tareas() {
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            {/* Placeholder punteado hasta tener el logo real del taller --
-                mismo tratamiento que se acordo en el mockup. */}
-            <div className="w-11 h-11 rounded-full border-2 border-dashed border-text/30 flex items-center justify-center shrink-0 font-mono text-[9px] text-text/50 text-center leading-tight">
-              LOGO
-              <br />
-              TALLER
-            </div>
+            {workshop?.logo_icon_url ? (
+              <img
+                src={workshop.logo_icon_url}
+                alt="Logo del taller"
+                className="w-11 h-11 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              // Placeholder punteado mientras carga o si el taller no tiene
+              // logo cargado -- mismo tratamiento que se acordo en el mockup.
+              <div className="w-11 h-11 rounded-full border-2 border-dashed border-text/30 flex items-center justify-center shrink-0 font-mono text-[9px] text-text/50 text-center leading-tight">
+                LOGO
+                <br />
+                TALLER
+              </div>
+            )}
             <div>
               <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
               {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
