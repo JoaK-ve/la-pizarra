@@ -255,14 +255,17 @@ function VistaMes({
               key={clave}
               type="button"
               onClick={() => setDiaSeleccionado(fecha)}
+              // Numero arriba a la izquierda (no centrado) y puntos pegados
+              // abajo -- como un calendario real, no un numero flotando
+              // solo en medio de un cuadrado vacio (eso se sentia "atenuado").
               className={
-                'bg-bg aspect-square rounded-lg border flex flex-col items-center justify-center gap-1 p-1.5 transition-colors hover:border-text/30 ' +
+                'bg-bg aspect-[1/0.85] rounded-lg border relative p-1.5 text-left transition-colors hover:border-text/30 ' +
                 (esHoy ? 'ring-2 ring-brand ring-inset border-transparent' : 'border-text/10') +
                 (delMes ? ' opacity-30' : '') +
                 (esSeleccionado && !esHoy ? ' border-text/40' : '')
               }
             >
-              <span className={'text-sm ' + (esHoy ? 'font-bold text-brand' : 'text-text/80')}>{fecha.getDate()}</span>
+              <span className={'text-xs ' + (esHoy ? 'font-bold text-brand' : 'text-text/80')}>{fecha.getDate()}</span>
               <PuntosPrioridad tareas={tareasDelDia} />
             </button>
           )
@@ -296,14 +299,14 @@ function PuntosPrioridad({ tareas }) {
   const visibles = tareas.slice(0, MAX_PUNTOS)
   const restantes = tareas.length - visibles.length
   return (
-    <span className="flex items-center gap-1 flex-wrap justify-center">
+    <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
       {visibles.map((tarea) => (
         <span
           key={tarea.id}
           // inline-block es obligatorio aca: un <span> es inline por
           // defecto, y sin contenido de texto un elemento inline IGNORA
           // width/height del todo -- por eso los puntos no se veian antes.
-          className={'inline-block w-2.5 h-2.5 rounded-full shrink-0 ' + (CLASE_BG_PRIORIDAD[tarea.prioridad] ?? CLASE_BG_PRIORIDAD.normal)}
+          className={'inline-block w-2 h-2 rounded-full shrink-0 ' + (CLASE_BG_PRIORIDAD[tarea.prioridad] ?? CLASE_BG_PRIORIDAD.normal)}
         />
       ))}
       {restantes > 0 && <span className="text-[9px] leading-none text-text/50">+{restantes}</span>}

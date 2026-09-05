@@ -126,10 +126,19 @@ export default function Tareas() {
     <div className="min-h-screen pb-24 sm:pb-10">
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
-            {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
-            <BuildVersion className="mt-0.5" />
+          <div className="flex items-center gap-3">
+            {/* Placeholder punteado hasta tener el logo real del taller --
+                mismo tratamiento que se acordo en el mockup. */}
+            <div className="w-11 h-11 rounded-full border-2 border-dashed border-text/30 flex items-center justify-center shrink-0 font-mono text-[9px] text-text/50 text-center leading-tight">
+              LOGO
+              <br />
+              TALLER
+            </div>
+            <div>
+              <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
+              {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
+              <BuildVersion className="mt-0.5" />
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
