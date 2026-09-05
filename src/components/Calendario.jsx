@@ -260,12 +260,20 @@ function VistaMes({
               // solo en medio de un cuadrado vacio (eso se sentia "atenuado").
               className={
                 'bg-bg aspect-[1/0.85] rounded-lg border relative p-1.5 text-left transition-colors hover:border-text/30 ' +
-                (esHoy ? 'ring-2 ring-brand ring-inset border-transparent' : 'border-text/10') +
+                // ring-brand SIN el /100 salia mezclado al 30% de opacidad
+                // sobre el fondo (Tailwind le mete una opacidad por defecto
+                // al ring si no se la das explicita) -- se veia verde oscuro
+                // en vez del verde de marca solido.
+                (esHoy ? 'ring-2 ring-brand/100 ring-inset border-transparent' : 'border-text/10') +
                 (delMes ? ' opacity-30' : '') +
                 (esSeleccionado && !esHoy ? ' border-text/40' : '')
               }
             >
-              <span className={'text-xs ' + (esHoy ? 'font-bold text-brand' : 'text-text/80')}>{fecha.getDate()}</span>
+              {/* Sin opacidad reducida en el numero -- el mockup lo deja a
+                  color pleno; la atenuacion de "fuera de mes" ya la da la
+                  celda entera (opacity-30 arriba), duplicarla aca solo lo
+                  dejaba casi invisible. */}
+              <span className={'text-xs ' + (esHoy ? 'font-bold text-brand' : 'text-text')}>{fecha.getDate()}</span>
               <PuntosPrioridad tareas={tareasDelDia} />
             </button>
           )
