@@ -127,7 +127,7 @@ export default function Tareas() {
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
           <div>
-            <h1 className="font-display text-xl font-bold text-text">La Pizarra</h1>
+            <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
             {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
             <BuildVersion className="mt-0.5" />
           </div>
