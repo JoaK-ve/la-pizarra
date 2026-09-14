@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-04 (tarde).
+Última actualización: 2026-09-14.
 
 ## Hecho (V1)
 
@@ -28,16 +28,29 @@
 - **Texto en voseo argentino corregido.** "Entrá con tu cuenta de WheelOS" → "Entra…" (Login.jsx) y "No tenés permiso…" → "No tienes permiso…" (useTareas.js, mensaje de error de RLS). Se revisó todo `src/` con varios patrones de voseo y no queda ninguno más.
 - **Recordatorios v1: banner dentro de la app (v0.3.0).** Pedido explícito del usuario. Arriba de la pantalla, sin importar la pestaña activa, avisa de tareas pendientes con `fecha_límite` de hoy (ámbar) o ya vencida (rojo) — reutiliza los datos que ya se traían para el Calendario, sin pedir nada nuevo a Supabase. Tocar una tarea del banner abre su detalle de siempre. **Verificado por el usuario en producción (2026-09-04): "sí, ya la vi funcionar".** No incluye push ni email todavía — solo avisa si alguien abre la app (ver opciones 2 y 3 evaluadas abajo).
 
+## Hecho (fase 6 — rediseño visual v2, 2026-09-05, v0.5.0)
+
+El usuario generó una especificación con otra herramienta (a partir de una captura real de la app) y la coordinamos en varias rondas antes de construir nada — dos puntos que la especificación daba por hecho sin existir en los datos (un color "cita" separado de "tarea", y una vista Día con horarios) se descartaron antes de tocar código, porque no hay campo de hora ni distinción tarea/cita en la base real.
+
+- **Verde de marca (`--color-brand`, del logo de TG Patinetes) reemplaza al ámbar como acento de navegación/acción.** El ámbar queda EXCLUSIVO para la prioridad "seguimiento" — antes se pisaban los dos significados con el mismo color.
+- **Jerarquía visual de la tarjeta por prioridad real:** urgente con sombra dura, seguimiento con bandera lateral, normal con punto, baja atenuada con borde punteado. "Hecha" atenúa la tarjeta completa.
+- **Logo real del taller en el header** — leído en vivo de `workshops.logo_icon_url` (WheelOS ya lo tenía guardado como data URI en base64), de solo lectura. Placeholder punteado como respaldo si no carga.
+- **Calendario Mes:** días del mes anterior/siguiente atenuados en vez de vacíos; tocar un día muestra su lista debajo de la cuadrícula sin cambiar de pestaña; número del día arriba a la izquierda con los puntos de prioridad pegados abajo (como un calendario real, no flotando en el centro).
+- **Calendario Semana:** cada columna muestra el título real de cada tarea (con una rayita de color según su prioridad), no un número — pedido explícito tras ver el "agenda-item" del mockup. Sigue navegando a Día al tocar la columna.
+- Reparaciones pasó al mismo sistema visual, botón renombrado a "Generar tarea".
+- **Tres bugs reales encontrados y corregidos en el camino** (todos verificados con captura real del usuario, no solo "debería andar"): los puntos de prioridad no se veían por faltar `inline-block` en un `<span>` sin contenido; el número del día estaba a 80% de opacidad (se veía lavado) y el aro de "hoy" salía verde oscuro por una opacidad de `ring` no especificada; y la lógica de "día fuera de mes" estaba directamente invertida (atenuaba los 30 días reales y dejaba los de relleno a full — el más serio de los tres).
+- Título "La Pizarra" agrandado en login y header (feedback: se veía chico).
+
 ## En curso
 
-- **Validar uso real con el equipo (2026-09-04: en marcha).** Joaquín ("Joaco") ya fue dado de alta y está usando la app. Falta entrenar a Lili para que la use — pendiente por parte del usuario, no técnico.
-- **Diseño visual del calendario — el usuario sigue sin estar "encantado" (2026-09-04, reafirmado).** Misma nota que en fase 5: sin una idea concreta todavía de qué mejorar, pausado a propósito por ahora.
+- **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
+- **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta.** Se verificó cada pieza a medida que se construía, pero no hay una revisión final de "sí, así queda" sobre el conjunto completo.
 
 ## Próximo (sin fecha aún)
 
 - **Recordatorios v2 — si el banner dentro de la app no alcanza.** Se evaluaron con el usuario dos opciones para subir de nivel: (a) notificación push real (Service Worker + VAPID + tabla de suscripciones + Cron Trigger en Cloudflare) — funciona con la app cerrada, pero en iPhone exige instalarla primero en la pantalla de inicio; (b) aviso por email (Cloudflare Email Sending + Cron Trigger) — más simple que el push, pero depende de que el equipo revise el correo seguido, que no está confirmado. Sin decidir todavía cuál (o si ninguna hace falta por ahora).
 - Confirmar si la fila de prueba "llamar a Ecoscooting" se borra antes de empezar a usar la app en serio.
-- Revisar con el usuario las decisiones tomadas sin confirmación explícita: paleta de color para prioridad normal/baja, orden de la lista (`created_at desc`).
+- Revisar con el usuario las decisiones tomadas sin confirmación explícita: orden de la lista (`created_at desc`).
 
 ## Fuera de alcance (fases futuras, no decidido cuándo)
 
@@ -45,7 +58,7 @@
 
 ## Deuda técnica pendiente (no bloqueante)
 
-- 3 warnings de oxlint (`react/set-state-in-effect` en `useUsuarios.js` y `useTareas.js`; `react/only-export-components` en `AuthContext.jsx`).
+- 6 warnings de oxlint (`react/set-state-in-effect` en `useUsuarios.js`, `useTareas.js`, `useTareasConFecha.js`, `useTareaNotas.js` y `useReparacionesActivas.js`; `react/only-export-components` en `AuthContext.jsx`) — mismos de siempre, ninguno nuevo introducido por el rediseño v2.
 - Sin tests automatizados.
 
 ## Feedback del usuario (2026-08-25) — ya en marcha
