@@ -7,6 +7,7 @@ import { useReparacionesActivas } from '../hooks/useReparacionesActivas'
 import { useTareasConFecha } from '../hooks/useTareasConFecha'
 import { useContadorNotas } from '../hooks/useContadorNotas'
 import { useWorkshop } from '../hooks/useWorkshop'
+import { useNotificacionesPush } from '../hooks/useNotificacionesPush'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
@@ -16,7 +17,7 @@ import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
 import BuildVersion from '../components/BuildVersion'
-import { LogoutIcon, PlusIcon } from '../components/icons'
+import { BellIcon, LogoutIcon, PlusIcon } from '../components/icons'
 
 const CONTEXTOS = [
   { value: 'todos', label: 'Todo' },
@@ -29,6 +30,7 @@ export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
   const { workshop } = useWorkshop()
+  const { soportado: pushSoportado, permiso: pushPermiso, activando: activandoPush, activar: activarPush } = useNotificacionesPush()
   const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
   const [contexto, setContexto] = useState('todos')
   const [asignadoA, setAsignadoA] = useState('todos')
@@ -161,6 +163,21 @@ export default function Tareas() {
               >
                 <PlusIcon size={16} />
                 Nueva tarea
+              </button>
+            )}
+            {/* Se esconde sola si ya esta activado o si el navegador la
+                bloqueo (permiso "denied") -- ahi no hay nada que este boton
+                pueda hacer, y no tiene sentido insistir. */}
+            {pushSoportado && pushPermiso !== 'granted' && pushPermiso !== 'denied' && (
+              <button
+                type="button"
+                onClick={activarPush}
+                disabled={activandoPush}
+                className="text-text/50 hover:text-text p-1 disabled:opacity-50"
+                aria-label="Activar notificaciones"
+                title="Activar notificaciones de tareas vencidas"
+              >
+                <BellIcon size={20} />
               </button>
             )}
             <button type="button" onClick={signOut} className="text-text/50 hover:text-text p-1" aria-label="Cerrar sesión">

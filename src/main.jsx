@@ -3,6 +3,16 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+// Necesario para poder recibir push notifications -- ver
+// public/sw.js y src/hooks/useNotificacionesPush.js.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((error) => {
+      console.error('No se pudo registrar el Service Worker:', error.message)
+    })
+  })
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

@@ -1,0 +1,9 @@
+{
+  "name": "La Pizarra",
+  "short_name": "La Pizarra",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1c1f1e",
+  "theme_color": "#1c1f1e",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

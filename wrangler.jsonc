@@ -1,12 +1,24 @@
 {
   "name": "la-pizarra",
   "compatibility_date": "2026-08-24",
+  "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
   },
   "routes": [
     { "pattern": "lapizarra.wheelos.es", "custom_domain": true }
-  ]
+  ],
+  // "0 6 * * *" -- aviso push, madrugada España. "0 8 * * *" -- resumen
+  // por email, ~10:00 España. Sin ajuste automatico de horario de verano.
+  "triggers": {
+    "crons": ["0 6 * * *", "0 8 * * *"]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://ejtzoeaqwjktllqvhfsv.supabase.co",
+    "VAPID_PUBLIC_KEY": "BNloHmI2v6RQofJq3sQiKU2tGhnyEIsORRLOiXQOjIZEVZNBnVqtgPw2zv3u-kyu26St37aNWZP94-N647dsxlo"
+  }
 }

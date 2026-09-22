@@ -13,5 +13,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    // Clave publica VAPID -- no es secreta (viaja al navegador de
+    // cualquier forma para poder suscribirse a push), pareja de la
+    // privada configurada como secret del Worker (ver worker/index.js).
+    __VAPID_PUBLIC_KEY__: JSON.stringify('BNloHmI2v6RQofJq3sQiKU2tGhnyEIsORRLOiXQOjIZEVZNBnVqtgPw2zv3u-kyu26St37aNWZP94-N647dsxlo'),
   },
 })
