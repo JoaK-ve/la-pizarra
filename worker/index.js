@@ -59,14 +59,23 @@ async function avisarPorFecha(supabase, fecha, campoNotificado, etiqueta) {
   }
 
   for (const tarea of tareas ?? []) {
-    await notificarTarea(supabase, tarea, etiqueta)
-    await supabase
-      .from('tareas')
-      .update({ [campoNotificado]: new Date().toISOString() })
-      .eq('id', tarea.id)
+    const enviados = await notificarTarea(supabase, tarea, etiqueta)
+    // Solo se marca como avisada si el push salio de verdad. Antes se
+    // marcaba siempre, aunque no hubiera ninguna suscripcion -- el aviso
+    // se daba por hecho sin haber llegado a nadie (paso en la primera
+    // prueba real, 2026-09-23).
+    if (enviados > 0) {
+      await supabase
+        .from('tareas')
+        .update({ [campoNotificado]: new Date().toISOString() })
+        .eq('id', tarea.id)
+    } else {
+      console.warn(`Sin push enviado para "${tarea.titulo}" (${etiqueta}): la persona asignada no tiene suscripciones activas.`)
+    }
   }
 }
 
+// Devuelve cuantos push se enviaron con exito.
 async function notificarTarea(supabase, tarea, etiqueta) {
   const { data: suscripciones, error } = await supabase
     .from('push_subscriptions')
@@ -75,8 +84,10 @@ async function notificarTarea(supabase, tarea, etiqueta) {
 
   if (error) {
     console.error('Error buscando suscripciones:', error.message)
-    return
+    return 0
   }
+
+  let enviados = 0
 
   const payload = JSON.stringify({
     title: `${etiqueta}: ${tarea.titulo}`,
@@ -90,6 +101,7 @@ async function notificarTarea(supabase, tarea, etiqueta) {
         { endpoint: suscripcion.endpoint, keys: { p256dh: suscripcion.p256dh, auth: suscripcion.auth } },
         payload,
       )
+      enviados++
     } catch (err) {
       // 404/410 = la suscripcion ya no existe del lado del navegador
       // (desinstalo la PWA, borro datos, etc.) -- se borra para no
@@ -101,6 +113,7 @@ async function notificarTarea(supabase, tarea, etiqueta) {
       }
     }
   }
+  return enviados
 }
 
 // Resumen diario por email: tareas vencidas + para hoy, agrupadas por

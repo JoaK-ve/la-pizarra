@@ -30,7 +30,13 @@ export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
   const { workshop } = useWorkshop()
-  const { soportado: pushSoportado, permiso: pushPermiso, activando: activandoPush, activar: activarPush } = useNotificacionesPush()
+  const {
+    soportado: pushSoportado,
+    permiso: pushPermiso,
+    activando: activandoPush,
+    error: pushError,
+    activar: activarPush,
+  } = useNotificacionesPush()
   const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
   const [contexto, setContexto] = useState('todos')
   const [asignadoA, setAsignadoA] = useState('todos')
@@ -165,17 +171,26 @@ export default function Tareas() {
                 Nueva tarea
               </button>
             )}
-            {/* Se esconde sola si ya esta activado o si el navegador la
-                bloqueo (permiso "denied") -- ahi no hay nada que este boton
-                pueda hacer, y no tiene sentido insistir. */}
-            {pushSoportado && pushPermiso !== 'granted' && pushPermiso !== 'denied' && (
+            {/* Se esconde sola si ya esta activado y guardado, o si el
+                navegador la bloqueo (permiso "denied") -- ahi no hay nada
+                que este boton pueda hacer. Si el permiso esta concedido pero
+                fallo el guardado, reaparece en rojo con el motivo, para no
+                dar por activado algo que no lo esta. */}
+            {pushSoportado && pushPermiso !== 'denied' && (pushPermiso !== 'granted' || pushError) && (
               <button
                 type="button"
                 onClick={activarPush}
                 disabled={activandoPush}
-                className="text-text/50 hover:text-text p-1 disabled:opacity-50"
+                className={
+                  'p-1 disabled:opacity-50 ' +
+                  (pushError ? 'text-priority-urgente' : 'text-text/50 hover:text-text')
+                }
                 aria-label="Activar notificaciones"
-                title="Activar notificaciones de tareas vencidas"
+                title={
+                  pushError
+                    ? `No se pudieron activar las notificaciones (${pushError}). Toca para reintentar.`
+                    : 'Activar notificaciones de tareas vencidas'
+                }
               >
                 <BellIcon size={20} />
               </button>
