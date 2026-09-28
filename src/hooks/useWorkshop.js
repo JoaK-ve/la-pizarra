@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
-// Logo real del taller (WheelOS ya lo tiene guardado en `workshops` --
-// data URI en base64, no un archivo en Storage) -- de solo lectura, mismo
-// patron que useReparacionesClientes/useReparacionesActivas.
+// Datos del taller de esta persona, leidos de `workshops` (WheelOS): nombre,
+// logo (data URI en base64, no un archivo en Storage) y los umbrales de
+// alerta que el taller configuro en WheelOS. De solo lectura, mismo patron
+// que useReparacionesClientes/useReparacionesActivas.
 export function useWorkshop() {
   const { profile } = useAuth()
   const [workshop, setWorkshop] = useState(null)
@@ -13,7 +14,7 @@ export function useWorkshop() {
     if (!profile?.workshop_id) return
     supabase
       .from('workshops')
-      .select('logo_icon_url, alert_days_terminado, alert_days_stalled')
+      .select('fantasy_name, logo_icon_url, alert_days_terminado, alert_days_stalled')
       .eq('id', profile.workshop_id)
       .single()
       .then(({ data, error }) => {

@@ -146,7 +146,7 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
             className={CAMPO}
-            placeholder="ej. Llamar a Recambios Alcoy"
+            placeholder="ej. Llamar al proveedor de baterías"
           />
           {/* Solo con el titulo vacio: al elegir una plantilla se rellena y
               las opciones desaparecen; borrar el titulo las devuelve. */}

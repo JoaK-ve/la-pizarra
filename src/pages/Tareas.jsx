@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTareas } from '../hooks/useTareas'
 import { useUsuarios } from '../hooks/useUsuarios'
@@ -33,6 +33,10 @@ export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
   const { workshop } = useWorkshop()
+  // Pestaña del navegador con el nombre del taller de esta persona.
+  useEffect(() => {
+    document.title = workshop?.fantasy_name ? `La Pizarra · ${workshop.fantasy_name}` : 'La Pizarra'
+  }, [workshop?.fantasy_name])
   const {
     soportado: pushSoportado,
     permiso: pushPermiso,
@@ -257,7 +261,12 @@ export default function Tareas() {
             )}
             <div>
               <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
-              {profile && <p className="text-text/50 text-sm mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
+              {profile && (
+                <p className="text-text/50 text-sm mt-0.5">
+                  {workshop?.fantasy_name && <span className="text-text/70">{workshop.fantasy_name} · </span>}
+                  Hola, {profile.full_name.split(' ')[0]}
+                </p>
+              )}
               <BuildVersion className="mt-0.5" />
             </div>
           </div>
