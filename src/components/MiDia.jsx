@@ -26,6 +26,8 @@ export default function MiDia({
   onCircleClick,
   onAbrirDetalle,
   onCrear,
+  reparacionesAtencion = 0,
+  onVerReparaciones,
 }) {
   const grupos = useMemo(() => {
     const hoy = fechaRelativa(0)
@@ -50,6 +52,24 @@ export default function MiDia({
       <p className="text-sm text-text/60">
         Tus tareas pendientes y las que no tienen a nadie asignado.
       </p>
+
+      {reparacionesAtencion > 0 && onVerReparaciones && (
+        <button
+          type="button"
+          onClick={onVerReparaciones}
+          className="mt-3 w-full flex items-center justify-between gap-3 rounded-xl border border-text/15 bg-text/5 px-4 py-3 text-left hover:border-text/30 transition-colors"
+        >
+          <span className="text-sm text-text">
+            <strong className="font-display">
+              {reparacionesAtencion === 1
+                ? '1 reparación necesita atención'
+                : `${reparacionesAtencion} reparaciones necesitan atención`}
+            </strong>
+            <span className="text-text/60"> · llevan días quietas sin nadie ocupándose</span>
+          </span>
+          <span className="text-brand-light text-sm font-semibold shrink-0">Ver</span>
+        </button>
+      )}
 
       {loading && <p className="text-text/40 text-sm mt-4">Cargando…</p>}
 

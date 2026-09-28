@@ -13,7 +13,7 @@ export function useWorkshop() {
     if (!profile?.workshop_id) return
     supabase
       .from('workshops')
-      .select('logo_icon_url')
+      .select('logo_icon_url, alert_days_terminado, alert_days_stalled')
       .eq('id', profile.workshop_id)
       .single()
       .then(({ data, error }) => {

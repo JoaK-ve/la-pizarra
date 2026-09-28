@@ -16,6 +16,9 @@ import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
 import Recordatorios from '../components/Recordatorios'
 import MiDia from '../components/MiDia'
+import NecesitaAtencion from '../components/NecesitaAtencion'
+import { reparacionesQueNecesitanAtencion } from '../utils/atencion'
+import { fechaRelativa } from '../utils/fechas'
 import { avisarAsignacion } from '../lib/avisos'
 import Toast from '../components/Toast'
 import { useTareasPendientes } from '../hooks/useTareasPendientes'
@@ -90,6 +93,13 @@ export default function Tareas() {
     return cuenta
   }, [pendientes])
 
+  // Reparaciones quietas mas dias de los que el taller tiene configurados en
+  // WheelOS (alert_days_*), sin tarea abierta -- ver utils/atencion.js.
+  const necesitanAtencion = useMemo(
+    () => reparacionesQueNecesitanAtencion(reparaciones, workshop, tareasAbiertasPorReparacion),
+    [reparaciones, workshop, tareasAbiertasPorReparacion],
+  )
+
   // Solo owner/admin/technician/secretary pueden crear tareas (misma regla
   // que la politica de RLS de insert) -- viewer no ve el boton.
   const puedeCrear = profile?.role && profile.role !== 'viewer'
@@ -144,6 +154,27 @@ export default function Tareas() {
       clienteRef: reparacion.client_phone_snapshot,
       clienteNombre: reparacion.client_name_snapshot,
       titulo: [patin, reparacion.client_problem].filter(Boolean).join(' — '),
+    })
+    setModalAbierto(true)
+  }
+
+  // Desde "Necesitan atencion": la tarea sale ya preparada -- titulo segun el
+  // caso, para hoy, y con la prioridad que corresponde (una reparacion
+  // parada pide seguimiento; una terminada sin recoger, un aviso normal).
+  function abrirTareaDesdeAtencion({ tipo, reparacion }) {
+    const patin = [reparacion.scooter_brand_snapshot, reparacion.scooter_model_snapshot].filter(Boolean).join(' ')
+    const cliente = reparacion.client_name_snapshot || 'el cliente'
+    setPrefillModal({
+      clientId: reparacion.client_id,
+      repairId: reparacion.id,
+      clienteRef: reparacion.client_phone_snapshot,
+      clienteNombre: reparacion.client_name_snapshot,
+      titulo:
+        tipo === 'terminado'
+          ? `Avisar a ${cliente}: su ${patin || 'patinete'} está listo para recoger`
+          : `Revisar reparación parada: ${patin || 'patinete'} de ${cliente}`,
+      prioridad: tipo === 'terminado' ? 'normal' : 'seguimiento',
+      fecha: fechaRelativa(0),
     })
     setModalAbierto(true)
   }
@@ -324,6 +355,8 @@ export default function Tareas() {
             onCircleClick={manejarClickCirculo}
             onAbrirDetalle={setTareaDetalle}
             onCrear={puedeCrear ? abrirNuevaTarea : undefined}
+            reparacionesAtencion={necesitanAtencion.length}
+            onVerReparaciones={() => setVista('reparaciones')}
           />
         )}
 
@@ -377,6 +410,12 @@ export default function Tareas() {
 
         {vista === 'reparaciones' && (
           <main className="px-4 sm:px-6 mt-4 space-y-2.5">
+            <NecesitaAtencion items={necesitanAtencion} puedeCrear={puedeCrear} onCrearTarea={abrirTareaDesdeAtencion} />
+            {necesitanAtencion.length > 0 && (
+              <h2 className="pt-3 font-mono text-xs uppercase tracking-wide font-semibold text-text/60">
+                Todas las reparaciones activas ({reparaciones.length})
+              </h2>
+            )}
             {loadingReparaciones && <p className="text-text/40 text-sm">Cargando…</p>}
             {errorReparaciones && <p className="text-sm text-priority-urgente">{errorReparaciones.message}</p>}
             {!loadingReparaciones && !errorReparaciones && reparaciones.length === 0 && (

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CloseIcon } from './icons'
 import { errorDeFecha, fechaRelativa, FECHA_MAXIMA, FECHA_MINIMA } from '../utils/fechas'
 
@@ -16,6 +16,19 @@ const PRIORIDADES = [
 const CAMPO =
   'w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand'
 const ETIQUETA = 'font-mono text-xs text-surface-text-muted uppercase tracking-wide'
+
+// Plantillas: las tareas que mas se repiten en un taller de reparacion. Rellenan
+// el titulo (con el nombre del cliente si la tarea viene de una reparacion) y
+// dejan el cursor al final para completar el detalle.
+const PLANTILLAS = [
+  {
+    etiqueta: 'Avisar que está listo',
+    titulo: (cliente) => (cliente ? `Avisar a ${cliente}: su patinete está listo` : 'Avisar al cliente: su patinete está listo'),
+  },
+  { etiqueta: 'Pedir repuesto', titulo: () => 'Pedir repuesto: ' },
+  { etiqueta: 'Llamar al cliente', titulo: (cliente) => (cliente ? `Llamar a ${cliente}` : 'Llamar al cliente: ') },
+  { etiqueta: 'Enviar presupuesto', titulo: (cliente) => (cliente ? `Enviar presupuesto a ${cliente}` : 'Enviar presupuesto: ') },
+]
 
 // Atajos de fecha: lo normal en un taller es "hoy", "mañana" o sin fecha;
 // solo "Otra" abre el selector de fecha.
@@ -48,7 +61,8 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
   const [titulo, setTitulo] = useState(prefill?.titulo ?? '')
   const [descripcion, setDescripcion] = useState('')
   const [asignadoA, setAsignadoA] = useState(usuarios.some((u) => u.id === miId) ? miId : '')
-  const [prioridad, setPrioridad] = useState('normal')
+  const [prioridad, setPrioridad] = useState(prefill?.prioridad ?? 'normal')
+  const tituloRef = useRef(null)
   const [modoFecha, setModoFecha] = useState(modoInicial(prefill?.fecha))
   const [fechaOtra, setFechaOtra] = useState(modoInicial(prefill?.fecha) === 'otra' ? prefill.fecha : '')
   const [masOpciones, setMasOpciones] = useState(false)
@@ -58,6 +72,15 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
   const fechaLimite = { ninguna: '', hoy: fechaRelativa(0), manana: fechaRelativa(1), otra: fechaOtra }[modoFecha]
   // Yo primero en la lista, para que lo comun sea un toque.
   const personas = [...usuarios].sort((a, b) => (b.id === miId) - (a.id === miId))
+
+  function aplicarPlantilla(plantilla) {
+    const texto = plantilla.titulo(prefill?.clienteNombre)
+    setTitulo(texto)
+    requestAnimationFrame(() => {
+      tituloRef.current?.focus()
+      tituloRef.current?.setSelectionRange(texto.length, texto.length)
+    })
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -117,6 +140,7 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
         <div>
           <label className={ETIQUETA}>¿Qué hay que hacer?</label>
           <input
+            ref={tituloRef}
             autoFocus
             required
             value={titulo}
@@ -124,6 +148,22 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
             className={CAMPO}
             placeholder="ej. Llamar a Recambios Alcoy"
           />
+          {/* Solo con el titulo vacio: al elegir una plantilla se rellena y
+              las opciones desaparecen; borrar el titulo las devuelve. */}
+          {!titulo.trim() && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {PLANTILLAS.map((p) => (
+                <button
+                  key={p.etiqueta}
+                  type="button"
+                  onClick={() => aplicarPlantilla(p)}
+                  className="px-3 py-1 rounded-full text-xs font-medium border border-surface-text/20 text-surface-text/70 hover:border-surface-text/40 hover:text-surface-text"
+                >
+                  {p.etiqueta}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>

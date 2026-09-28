@@ -26,7 +26,7 @@ export function useReparacionesActivas() {
     const { data, error } = await supabase
       .from('repairs')
       .select(
-        'id, client_id, order_num, status, reception_date, client_problem, client_name_snapshot, client_phone_snapshot, scooter_brand_snapshot, scooter_model_snapshot',
+        'id, client_id, order_num, status, reception_date, updated_at, client_problem, client_name_snapshot, client_phone_snapshot, scooter_brand_snapshot, scooter_model_snapshot',
       )
       .neq('status', 'entregado')
       .order('reception_date', { ascending: false })
