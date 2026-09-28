@@ -19,6 +19,24 @@ function primeroPor(filas, campo) {
 
 const unicos = (valores) => [...new Set(valores.filter(Boolean))]
 
+// Ajustes de cada persona (tabla pizarra_preferencias, pantalla de Ajustes).
+// Sin fila = todo activado y resumen a las 10:00 hora de Madrid. Mantener
+// igual que PREFERENCIAS_POR_DEFECTO en src/hooks/usePreferencias.js.
+const PREFERENCIAS_POR_DEFECTO = { resumen_email: true, resumen_hora: 10, push_vencimiento: true, aviso_asignacion: true }
+
+async function cargarPreferencias(supabase, usuarioIds) {
+  if (!usuarioIds.length) return new Map()
+  const { data, error } = await supabase
+    .from('pizarra_preferencias')
+    .select('user_id, resumen_email, resumen_hora, push_vencimiento, aviso_asignacion')
+    .in('user_id', usuarioIds)
+  // Si la tabla aun no existe o falla, se avisa a todos con los valores por
+  // defecto: peor es callar un aviso de vencimiento.
+  if (error) console.error('No se pudieron cargar las preferencias:', error.message)
+  const porUsuario = new Map((data ?? []).map((fila) => [fila.user_id, fila]))
+  return new Map(usuarioIds.map((id) => [id, { ...PREFERENCIAS_POR_DEFECTO, ...porUsuario.get(id) }]))
+}
+
 async function registrarAviso(supabase, fila) {
   const { error } = await supabase.from('avisos_enviados').insert(fila)
   if (error) console.error('No se pudo registrar el aviso:', error.message)
@@ -184,18 +202,27 @@ async function mandarResumen(supabase, env, { persona, taller, secciones, hoy, p
   return envio
 }
 
-// CRON 08:00 UTC. Un correo por persona con sus tareas vencidas, de hoy y de
-// mañana, con la marca del taller de esa persona. Como maximo uno al dia.
-export async function enviarResumenes(supabase, env) {
+// Corre cada hora. Un correo por persona con sus tareas vencidas, de hoy y de
+// mañana, con la marca del taller de esa persona, en la hora que ella eligio
+// (`horaLocal`, hora de Madrid) y solo si lo tiene activado. Como maximo uno
+// al dia.
+export async function enviarResumenes(supabase, env, horaLocal) {
   const hoy = fechaISO(0)
   const manana = fechaISO(1)
   const tareas = await cargarTareas(supabase, manana)
   if (!tareas.length) return
 
+  const preferencias = await cargarPreferencias(supabase, unicos(tareas.map((t) => t.asignado_a)))
+  const lesToca = unicos(tareas.map((t) => t.asignado_a)).filter((id) => {
+    const p = preferencias.get(id)
+    return p.resumen_email && p.resumen_hora === horaLocal
+  })
+  if (!lesToca.length) return
+
   const ctx = await cargarContexto(supabase, tareas)
   const desdeHoy = `${hoy}T00:00:00Z`
 
-  for (const personaId of unicos(tareas.map((t) => t.asignado_a))) {
+  for (const personaId of lesToca) {
     const persona = ctx.usuarios.get(personaId)
     const taller = persona && ctx.talleres.get(persona.workshop_id)
     if (!persona?.active || !persona.email || !taller) continue
@@ -222,16 +249,18 @@ export async function enviarResumenes(supabase, env) {
   }
 }
 
-// CRON 06:00 UTC. Dos avisos push por tarea y persona, cada uno una sola vez:
-// 24h antes ("previo") y el dia del vencimiento. Se registran en
-// avisos_enviados; asi, si la tarea se reasigna, la nueva persona recibe los
-// suyos.
+// Una vez al dia (a las 07:00 de Madrid). Dos avisos push por tarea y persona,
+// cada uno una sola vez: 24h antes ("previo") y el dia del vencimiento. Se
+// registran en avisos_enviados; asi, si la tarea se reasigna, la nueva
+// persona recibe los suyos. Salta a quien desactivo el push de vencimientos.
 export async function enviarPushes(supabase, env) {
   webpush.setVapidDetails(`mailto:${env.MAIL_FROM}`, env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY)
   const hoy = fechaISO(0)
   const manana = fechaISO(1)
 
-  const candidatas = (await cargarTareas(supabase, manana)).filter((t) => t.fecha_limite === hoy || t.fecha_limite === manana)
+  const conFecha = (await cargarTareas(supabase, manana)).filter((t) => t.fecha_limite === hoy || t.fecha_limite === manana)
+  const preferencias = await cargarPreferencias(supabase, unicos(conFecha.map((t) => t.asignado_a)))
+  const candidatas = conFecha.filter((t) => preferencias.get(t.asignado_a).push_vencimiento)
   if (!candidatas.length) return
 
   const ctx = await cargarContexto(supabase, candidatas)
@@ -366,6 +395,9 @@ export async function avisoDeAsignacion(supabase, env, asignador, tareaId) {
   if (tarea.estado !== 'pendiente') return { omitido: 'La tarea ya no está pendiente.' }
   if (!tarea.asignado_a) return { omitido: 'La tarea no tiene a nadie asignado.' }
   if (tarea.asignado_a === asignador.id) return { omitido: 'Te la asignaste a ti mismo.' }
+
+  const preferencias = (await cargarPreferencias(supabase, [tarea.asignado_a])).get(tarea.asignado_a)
+  if (!preferencias.aviso_asignacion) return { omitido: 'La persona desactivó estos avisos en sus ajustes.' }
 
   const haceDiezMinutos = new Date(Date.now() - 10 * 60000).toISOString()
   const { data: reciente } = await supabase

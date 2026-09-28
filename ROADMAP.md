@@ -93,17 +93,17 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 - [x] Plantillas de tarea ("Avisar que está listo", "Pedir repuesto"…) y cierre automático al pasar la reparación a `entregado`.
 - [x] Enlaces cruzados con WheelOS: NO es posible hoy -- WheelOS abre cada reparación en una modal, sin URL propia (y La Pizarra solo lee, no toca WheelOS). Se resolvió mostrando el número de orden (p. ej. `8PSVB2`, toque para copiar) en tarjetas, detalle, "Necesitan atención" y correo. Mejora futura que depende de WheelOS: que abra la modal con un parámetro (`?reparacion=<id>`) y entonces añadir el botón "Abrir en WheelOS".
 
-**Fase D — Ajustes por persona y multi-taller**
-- [ ] Pantalla de ajustes: canales activos, hora del resumen.
-- [ ] Mostrar el nombre del taller en la cabecera; nada fijo de TG Patinetes en código ni plantillas (hay 2 talleres en WheelOS: TG Patinetes y WheelOS Demo).
+**Fase D — Ajustes por persona y multi-taller** — construida y desplegada el 2026-09-29 (v0.14.1 nombre del taller; v0.15.0 Ajustes + cron horario). **Requiere el SQL de `pizarra_preferencias`** (tabla propia de La Pizarra, sin tocar tablas de WheelOS); sin ese SQL, Ajustes muestra un error y el Worker usa los valores por defecto. Cada persona elige: resumen diario por correo (sí/no y hora 06:00-20:00 de Madrid), push de vencimientos, y aviso al asignarle una tarea. El cron pasó de 2 disparos diarios en UTC a **uno cada hora**, y el Worker decide con la hora de Madrid (Intl): así "las 10:00" son las 10:00 todo el año, sin el desfase de una hora verano/invierno. Supuestos de España, a propósito y anotados: zona horaria Europe/Madrid y prefijo +34 (workshops no guarda país ni zona horaria). Revisión de valores fijos de un taller: no hay ninguno en la lógica.
+- [x] Pantalla de ajustes: canales activos, hora del resumen.
+- [x] Mostrar el nombre del taller en la cabecera; nada fijo de TG Patinetes en código ni plantillas (hay 2 talleres en WheelOS: TG Patinetes y WheelOS Demo).
 
 **Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). `wheelos.es` ya estaba verificado en Resend (respondido). Sigue pendiente de respuesta: el patrón de URL de una reparación en WheelOS (para la fase C).
 
-**Estado al cierre de la sesión (2026-09-28/29):** fases A, B y C construidas y desplegadas (v0.13.0). Pendiente de verificar por el usuario: un aviso real al asignar a otra persona, "Mi día", C2 (tarea enlazada a su reparación) y C3 ("Necesitan atención"); y el primer resumen automático (29/09 ~10:00). Siguiente: **fase D** (ajustes por persona y multi-taller) y las dos decisiones abiertas de la fase C.
+**Estado al cierre de la sesión (2026-09-29):** las fases A, B, C y D del plan están construidas y desplegadas (v0.15.0). Pendiente de verificar por el usuario, porque necesita su sesión: aviso real al asignar a otra persona, Mi día, tarea enlazada a su reparación, Necesitan atención, número de orden, Ajustes (tras correr el SQL) y el primer resumen automático. No quedan puntos abiertos del plan original salvo mejoras futuras: enlace directo a una reparación de WheelOS (depende de que WheelOS abra la modal por parámetro de URL) y país/zona horaria por taller.
 
 ## En curso
 
-- **Fase D del plan de mejoras** (siguiente): pantalla de ajustes (canales activos, hora del resumen) y nombre del taller en la cabecera.
+- **Verificación real por el usuario de las fases B, C y D** (ver el estado al cierre de arriba).
 - **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09); (3) tras confirmar todo, borrar las columnas `tareas.notificado_previo_at/notificado_vencimiento_at`, que ya no se usan.
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
 - **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.

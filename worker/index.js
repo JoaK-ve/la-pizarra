@@ -1,17 +1,25 @@
 import { createClient } from '@supabase/supabase-js'
 import { enviarPushes, enviarResumenes, avisoDePrueba, avisoDeAsignacion } from './avisos.js'
 
-// La Pizarra es un Worker hibrido: sirve la SPA (binding ASSETS) y ademas
-// tiene dos crons y dos rutas propias:
-//   GET  /logo/<workshop_id>   logo del taller como imagen (para los correos)
-//   POST /api/aviso-prueba     boton "Enviar aviso de prueba" de la app
+// La Pizarra es un Worker hibrido: sirve la SPA (binding ASSETS), tiene un
+// cron horario y rutas propias:
+//   GET  /logo/<workshop_id>      logo del taller como imagen (para los correos)
+//   POST /api/aviso-prueba        "Enviarme un aviso de prueba" (Ajustes)
+//   POST /api/aviso-asignacion    aviso al asignar una tarea
 // Las rutas propias estan en `assets.run_worker_first` (wrangler.jsonc).
 
-// "06:00 UTC" push, primera hora de la mañana en España. "08:00 UTC" resumen
-// por correo, ~10:00 en España. Los Cron Triggers no admiten zona horaria,
-// asi que hay +-1h segun horario de verano/invierno.
-const CRON_PUSH = '0 6 * * *'
-const CRON_EMAIL = '0 8 * * *'
+// El cron corre CADA HORA (los Cron Triggers no admiten zona horaria) y aqui
+// se decide que toca segun la hora de Madrid: asi "las 10:00" son las 10:00
+// todo el año (con un cron fijo en UTC bailaba una hora entre verano e
+// invierno) y cada persona puede elegir la hora de su resumen. Todo es
+// idempotente: repetir una hora no duplica avisos (avisos_enviados).
+// Se asume la zona de España peninsular; workshops no guarda zona horaria.
+const ZONA_HORARIA = 'Europe/Madrid'
+const HORA_PUSH = 7
+
+function horaLocal(fecha) {
+  return Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: ZONA_HORARIA }).format(fecha))
+}
 
 const clienteAdmin = (env) => createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
@@ -89,7 +97,10 @@ export default {
 
   async scheduled(evento, env, ctx) {
     const supabase = clienteAdmin(env)
-    if (evento.cron === CRON_PUSH) ctx.waitUntil(enviarPushes(supabase, env).catch((e) => console.error('Cron push:', e.message)))
-    else if (evento.cron === CRON_EMAIL) ctx.waitUntil(enviarResumenes(supabase, env).catch((e) => console.error('Cron email:', e.message)))
+    const hora = horaLocal(new Date(evento.scheduledTime))
+    if (hora === HORA_PUSH) {
+      ctx.waitUntil(enviarPushes(supabase, env).catch((e) => console.error('Cron push:', e.message)))
+    }
+    ctx.waitUntil(enviarResumenes(supabase, env, hora).catch((e) => console.error('Cron email:', e.message)))
   },
 }
