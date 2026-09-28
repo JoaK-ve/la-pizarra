@@ -86,11 +86,11 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 - [x] Avisar a la persona cuando le asignan una tarea.
 - [x] Mostrar errores al usuario (hoy, si RLS bloquea "marcar hecha", no se ve nada).
 
-**Fase C — Integración con WheelOS**
-- [ ] `tareas.repair_id`: enlazar a la reparación exacta (hoy solo al cliente, y un cliente puede tener varias).
-- [ ] Botones de un toque para llamar y escribir por WhatsApp desde tarjetas de tarea y de reparación.
-- [ ] Sección "Necesita atención" con los umbrales del propio taller (`alert_days_terminado`, `alert_days_stalled`), creando la tarea con un toque ("Avisar a X: patinete terminado hace 9 días").
-- [ ] Plantillas de tarea ("Avisar que está listo", "Pedir repuesto"…) y cierre automático al pasar la reparación a `entregado`.
+**Fase C — Integración con WheelOS** — construida y desplegada el 2026-09-28/29 (v0.11.0 llamar/WhatsApp; v0.12.0 `repair_id`; v0.13.0 "Necesitan atención" + plantillas). **Falta la verificación real del usuario** de C2 y C3. Quedan abiertos, a propósito: (1) **cierre automático** al pasar la reparación a `entregado` — NO se implementó: cerrar sola una tarea puede ser un error (p. ej. "facturar" después de entregar); propuesta pendiente de decidir con el usuario: en vez de cerrar, avisar en la tarjeta "la reparación ya está entregada"; (2) **enlaces cruzados con WheelOS**: sigue faltando el patrón de URL de una reparación. Dato real al construir C3: 8 patinetes "terminado" sin recoger en TG Patinetes desde hace 12 a 67 días.
+- [x] `tareas.repair_id`: enlazar a la reparación exacta (hoy solo al cliente, y un cliente puede tener varias).
+- [x] Botones de un toque para llamar y escribir por WhatsApp desde tarjetas de tarea y de reparación.
+- [x] Sección "Necesita atención" con los umbrales del propio taller (`alert_days_terminado`, `alert_days_stalled`), creando la tarea con un toque ("Avisar a X: patinete terminado hace 9 días").
+- [x] Plantillas de tarea ("Avisar que está listo", "Pedir repuesto"…) y cierre automático al pasar la reparación a `entregado`.
 - [ ] Enlaces cruzados con WheelOS (falta saber el patrón de URL de una reparación).
 
 **Fase D — Ajustes por persona y multi-taller**
@@ -99,11 +99,11 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 
 **Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). `wheelos.es` ya estaba verificado en Resend (respondido). Sigue pendiente de respuesta: el patrón de URL de una reparación en WheelOS (para la fase C).
 
-**Estado a 2026-09-28 (tarde):** fase A y fase B construidas y desplegadas (v0.10.0). Pendiente de verificar por el usuario: editar/borrar una tarea, alta rápida, Mi día y un aviso real al asignar a otra persona; y el primer resumen automático (29/09 ~10:00). Siguiente: **fase C** (integración con WheelOS), para la que falta el patrón de URL de una reparación en WheelOS.
+**Estado al cierre de la sesión (2026-09-28/29):** fases A, B y C construidas y desplegadas (v0.13.0). Pendiente de verificar por el usuario: un aviso real al asignar a otra persona, "Mi día", C2 (tarea enlazada a su reparación) y C3 ("Necesitan atención"); y el primer resumen automático (29/09 ~10:00). Siguiente: **fase D** (ajustes por persona y multi-taller) y las dos decisiones abiertas de la fase C.
 
 ## En curso
 
-- **Fase C del plan de mejoras** (siguiente): `repair_id`, llamar/WhatsApp de un toque, "Necesita atención" con los umbrales del taller, plantillas y cierre automático.
+- **Fase D del plan de mejoras** (siguiente): pantalla de ajustes (canales activos, hora del resumen) y nombre del taller en la cabecera.
 - **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09); (3) tras confirmar todo, borrar las columnas `tareas.notificado_previo_at/notificado_vencimiento_at`, que ya no se usan.
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
 - **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.
