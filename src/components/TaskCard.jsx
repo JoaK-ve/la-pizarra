@@ -97,9 +97,14 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
           >
             {PRIORIDAD_LABEL[tarea.prioridad] ?? tarea.prioridad}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">
-            {CONTEXTO_LABEL[tarea.contexto] ?? tarea.contexto}
-          </span>
+          {/* "Taller" es el 100% de las tareas reales -- se muestra solo
+              cuando es otro contexto (personal/familia), para no repetir
+              la misma etiqueta en cada tarjeta. */}
+          {tarea.contexto !== 'taller' && (
+            <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">
+              {CONTEXTO_LABEL[tarea.contexto] ?? tarea.contexto}
+            </span>
+          )}
           {tarea.origen === 'secre' && (
             <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand flex items-center gap-1">
               <SparkleIcon size={11} /> La Secre

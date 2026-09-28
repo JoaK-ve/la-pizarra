@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CloseIcon } from './icons'
+import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA } from '../utils/fechas'
 
 // "nuevo" no se ofrece aca a proposito: ese valor de prioridad es el que usa
 // La Secre para marcar "llegó hoy/reciente" en tareas que ella genera. Las
@@ -38,6 +39,12 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!titulo.trim()) return
+
+    const problemaFecha = errorDeFecha(fechaLimite)
+    if (problemaFecha) {
+      setError(problemaFecha)
+      return
+    }
 
     setEnviando(true)
     setError(null)
@@ -137,6 +144,8 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
           <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Fecha (opcional)</label>
           <input
             type="date"
+            min={FECHA_MINIMA}
+            max={FECHA_MAXIMA}
             value={fechaLimite}
             onChange={(e) => setFechaLimite(e.target.value)}
             className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"

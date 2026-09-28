@@ -18,3 +18,24 @@ export function formatearFechaLocal(date) {
 export function soloFecha(valor) {
   return typeof valor === 'string' ? valor.slice(0, 10) : valor
 }
+
+// Limites razonables para una fecha limite. El selector de fecha del
+// navegador deja escribir años de 6 cifras (paso: "20206-03-06" en una
+// tarea real) -- se usan como min/max del input y se comprueban al guardar.
+export const FECHA_MINIMA = '2020-01-01'
+export const FECHA_MAXIMA = '2100-12-31'
+
+// Devuelve un mensaje de error, o null si la fecha ("" = sin fecha) es valida.
+export function errorDeFecha(iso) {
+  if (!iso) return null
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || Number.isNaN(Date.parse(iso))) return 'La fecha no es válida.'
+  if (iso < FECHA_MINIMA || iso > FECHA_MAXIMA) return 'La fecha debe estar entre 2020 y 2100.'
+  return null
+}
+
+// "Hoy" y "Mañana" para los atajos del formulario, en hora local.
+export function fechaRelativa(desplazamientoDias) {
+  const fecha = new Date()
+  fecha.setDate(fecha.getDate() + desplazamientoDias)
+  return formatearFechaLocal(fecha)
+}

@@ -79,26 +79,68 @@ export function useTareas({ contexto, asignadoA, mostrarHechas }) {
       // clientId/clienteRef solo vienen cuando la tarea se crea desde la
       // vista de Reparaciones (ver RepairCard) -- en el formulario manual
       // normal quedan undefined y se guardan como null, igual que antes.
-      const { error } = await supabase.from('tareas').insert({
-        workshop_id: perfil.workshop_id,
-        titulo,
-        descripcion: descripcion || null,
-        contexto: ctx,
-        origen: 'manual',
-        prioridad,
-        creado_por: perfil.id,
-        asignado_a: asignado || null,
-        client_id: clientId || null,
-        cliente_ref: clienteRef || null,
-        fecha_limite: fechaLimite || null,
-      })
+      const { data: creada, error } = await supabase
+        .from('tareas')
+        .insert({
+          workshop_id: perfil.workshop_id,
+          titulo,
+          descripcion: descripcion || null,
+          contexto: ctx,
+          origen: 'manual',
+          prioridad,
+          creado_por: perfil.id,
+          asignado_a: asignado || null,
+          client_id: clientId || null,
+          cliente_ref: clienteRef || null,
+          fecha_limite: fechaLimite || null,
+        })
+        .select('id')
+        .single()
 
       if (error) return { ok: false, message: error.message }
       await refetch()
-      return { ok: true }
+      return { ok: true, id: creada.id, creadaPor: perfil.id }
     },
     [user, refetch],
   )
 
-  return { tareas, loading, error, refetch, toggleHecho, crearTarea }
+  // Editar: mismo criterio que toggleHecho -- RLS no da error cuando bloquea
+  // un UPDATE, devuelve 0 filas, asi que se detecta a mano.
+  const editarTarea = useCallback(
+    async (id, { titulo, descripcion, prioridad, fechaLimite, asignadoA }) => {
+      const { data, error } = await supabase
+        .from('tareas')
+        .update({
+          titulo,
+          descripcion: descripcion || null,
+          prioridad,
+          fecha_limite: fechaLimite || null,
+          asignado_a: asignadoA || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+
+      if (error) return { ok: false, message: error.message }
+      if (!data?.length) return { ok: false, message: 'No tienes permiso para modificar esta tarea.' }
+      await refetch()
+      return { ok: true, tarea: data[0] }
+    },
+    [refetch],
+  )
+
+  // Borrar de verdad (con sus notas y avisos, por cascade). Misma deteccion
+  // de "RLS bloqueo el DELETE" por 0 filas.
+  const borrarTarea = useCallback(
+    async (id) => {
+      const { data, error } = await supabase.from('tareas').delete().eq('id', id).select('id')
+      if (error) return { ok: false, message: error.message }
+      if (!data?.length) return { ok: false, message: 'No tienes permiso para borrar esta tarea.' }
+      await refetch()
+      return { ok: true }
+    },
+    [refetch],
+  )
+
+  return { tareas, loading, error, refetch, toggleHecho, crearTarea, editarTarea, borrarTarea }
 }

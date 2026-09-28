@@ -15,6 +15,8 @@ import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
 import Recordatorios from '../components/Recordatorios'
+import Toast from '../components/Toast'
+import { useToast } from '../hooks/useToast'
 import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
@@ -56,7 +58,12 @@ export default function Tareas() {
   // Enlaces de correos/push: /?tarea=<id> abre directamente esa tarea.
   useAbrirTareaDesdeEnlace(setTareaDetalle)
 
-  const { tareas, loading, error, toggleHecho, crearTarea } = useTareas({ contexto, asignadoA, mostrarHechas })
+  const { toast, mostrar: mostrarToast, cerrar: cerrarToast } = useToast()
+  const { tareas, loading, error, toggleHecho, crearTarea, editarTarea, borrarTarea } = useTareas({
+    contexto,
+    asignadoA,
+    mostrarHechas,
+  })
   // Contexto real del taller (cliente + reparacion activa) para las tareas
   // que tienen client_id -- solo lectura de WheelOS, ver el hook.
   const reparacionesPorCliente = useReparacionesClientes(tareas)
@@ -120,6 +127,29 @@ export default function Tareas() {
   async function toggleHechoYRefrescar(tarea) {
     const resultado = await toggleHecho(tarea)
     recargarCalendario()
+    // Antes el resultado se ignoraba: si RLS bloqueaba el cambio, no se
+    // veia nada y la tarea parecia no responder.
+    if (!resultado.ok) mostrarToast(resultado.message)
+    return resultado
+  }
+
+  async function editarTareaYRefrescar(id, campos) {
+    const resultado = await editarTarea(id, campos)
+    if (resultado.ok) {
+      setTareaDetalle(resultado.tarea)
+      recargarCalendario()
+      mostrarToast('Tarea actualizada', 'ok')
+    }
+    return resultado
+  }
+
+  async function borrarTareaYRefrescar(id) {
+    const resultado = await borrarTarea(id)
+    if (resultado.ok) {
+      recargarCalendario()
+      recargarContadorNotas()
+      mostrarToast('Tarea borrada', 'ok')
+    }
     return resultado
   }
 
@@ -357,10 +387,16 @@ export default function Tareas() {
       {tareaDetalle && (
         <TareaDetalle
           tarea={tareaDetalle}
+          usuarios={usuarios}
+          puedeEditar={puedeCrear}
           onClose={() => setTareaDetalle(null)}
           onNotaAgregada={recargarContadorNotas}
+          onGuardar={editarTareaYRefrescar}
+          onBorrar={borrarTareaYRefrescar}
         />
       )}
+
+      <Toast toast={toast} onCerrar={cerrarToast} />
     </div>
   )
 }
