@@ -146,7 +146,7 @@ export function renderResumen({ taller, persona, secciones, hoy, appUrl, prueba 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#efece2;">
 <tr><td align="center" style="padding:24px 12px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-    <tr><td style="background:#ffffff;border-radius:12px 12px 0 0;padding:20px 24px 16px;border-bottom:4px solid #5c9e3a;font-family:${FUENTE};">
+    <tr><td style="background:#1c1f1e;color:#ede8de;border-radius:12px 12px 0 0;padding:20px 24px 16px;border-bottom:4px solid #5c9e3a;font-family:${FUENTE};">
       <img src="${esc(logo)}" alt="${esc(nombre)}" height="44" style="display:block;height:44px;max-width:260px;border:0;">
     </td></tr>
     <tr><td style="background:#f2efe4;padding:22px 24px 26px;border-radius:0 0 12px 12px;font-family:${FUENTE};color:#1c1f1e;">
