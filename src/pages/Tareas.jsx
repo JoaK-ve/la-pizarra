@@ -15,7 +15,9 @@ import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
 import Recordatorios from '../components/Recordatorios'
+import MiDia from '../components/MiDia'
 import Toast from '../components/Toast'
+import { useTareasPendientes } from '../hooks/useTareasPendientes'
 import { useToast } from '../hooks/useToast'
 import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
@@ -34,7 +36,7 @@ export default function Tareas() {
     error: pushError,
     activar: activarPush,
   } = useNotificacionesPush()
-  const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
+  const [vista, setVista] = useState('midia') // 'midia' | 'tareas' | 'reparaciones' | 'calendario'
   const [asignadoA, setAsignadoA] = useState('todos')
   const [mostrarHechas, setMostrarHechas] = useState(false)
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -59,13 +61,19 @@ export default function Tareas() {
     asignadoA,
     mostrarHechas,
   })
+  // Todas las pendientes sin filtrar, para "Mi dia" (la lista de arriba
+  // cambia con los filtros de la pestaña Tareas).
+  const { tareas: pendientes, loading: loadingPendientes, refetch: recargarPendientes } = useTareasPendientes()
+  // Tareas visibles en CUALQUIERA de las dos listas (sin repetir), para pedir
+  // una sola vez el contexto de cliente y el contador de notas de todas.
+  const tareasVisibles = useMemo(() => [...new Map([...tareas, ...pendientes].map((t) => [t.id, t])).values()], [tareas, pendientes])
   // Contexto real del taller (cliente + reparacion activa) para las tareas
   // que tienen client_id -- solo lectura de WheelOS, ver el hook.
-  const reparacionesPorCliente = useReparacionesClientes(tareas)
+  const reparacionesPorCliente = useReparacionesClientes(tareasVisibles)
   // Lista completa de reparaciones activas del taller, para la vista nueva.
   const { reparaciones, loading: loadingReparaciones, error: errorReparaciones } = useReparacionesActivas()
   // Cuantas notas tiene cada tarea visible, para el indicador "💬 N".
-  const { contador: contadorNotas, refetch: recargarContadorNotas } = useContadorNotas(tareas.map((t) => t.id))
+  const { contador: contadorNotas, refetch: recargarContadorNotas } = useContadorNotas(tareasVisibles.map((t) => t.id))
   // Tareas con fecha_limite, para el Calendario -- se pide aca (no adentro
   // de Calendario.jsx) para poder refrescarlo despues de crear una tarea
   // desde cualquier lado, no solo desde el propio calendario.
@@ -89,13 +97,20 @@ export default function Tareas() {
     setModalAbierto(true)
   }
 
+  // El Calendario y "Mi dia" traen sus datos por su cuenta: hay que
+  // refrescarlos a mano despues de cualquier cambio en una tarea.
+  function recargarListas() {
+    recargarCalendario()
+    recargarPendientes()
+  }
+
   // crearTarea (de useTareas) ya refresca su propia lista -- esto ademas
   // refresca el Calendario, que trae sus datos por separado (ver arriba),
   // asi una tarea con fecha creada desde CUALQUIER lado aparece ahi sin
   // tener que salir y volver a entrar a esa pestaña.
   async function crearTareaYRefrescar(datos) {
     const resultado = await crearTarea(datos)
-    if (resultado.ok) recargarCalendario()
+    if (resultado.ok) recargarListas()
     return resultado
   }
 
@@ -121,7 +136,7 @@ export default function Tareas() {
   // hasta salir y volver a entrar a esa pestaña.
   async function toggleHechoYRefrescar(tarea) {
     const resultado = await toggleHecho(tarea)
-    recargarCalendario()
+    recargarListas()
     // Antes el resultado se ignoraba: si RLS bloqueaba el cambio, no se
     // veia nada y la tarea parecia no responder.
     if (!resultado.ok) mostrarToast(resultado.message)
@@ -132,7 +147,7 @@ export default function Tareas() {
     const resultado = await editarTarea(id, campos)
     if (resultado.ok) {
       setTareaDetalle(resultado.tarea)
-      recargarCalendario()
+      recargarListas()
       mostrarToast('Tarea actualizada', 'ok')
     }
     return resultado
@@ -141,7 +156,7 @@ export default function Tareas() {
   async function borrarTareaYRefrescar(id) {
     const resultado = await borrarTarea(id)
     if (resultado.ok) {
-      recargarCalendario()
+      recargarListas()
       recargarContadorNotas()
       mostrarToast('Tarea borrada', 'ok')
     }
@@ -255,17 +270,35 @@ export default function Tareas() {
           </div>
         )}
 
-        {/* Avisa de tareas vencidas o para hoy, sin importar en que
-            pestaña estes -- ver Recordatorios.jsx. */}
-        <Recordatorios tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />
+        {/* Avisa de tareas vencidas o para hoy (de TODA la gente del taller)
+            en las demas pestañas -- ver Recordatorios.jsx. En "Mi dia" se
+            oculta: ahi ya salen, ordenadas, las tuyas. */}
+        {vista !== 'midia' && <Recordatorios tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />}
 
-        {/* Cambia entre la lista de tareas de siempre y las reparaciones
-            activas del taller (leidas de WheelOS, de solo lectura). */}
-        <div className="px-4 sm:px-6 flex gap-2">
+        {/* Cambia entre Mi dia, la lista completa de tareas, las reparaciones
+            activas del taller (leidas de WheelOS, de solo lectura) y el
+            calendario. Con scroll horizontal por si no caben en pantallas
+            angostas. */}
+        <div className="px-4 sm:px-6 mt-4 flex gap-2 overflow-x-auto pb-1">
+          <FilterPill label="Mi día" active={vista === 'midia'} onClick={() => setVista('midia')} />
           <FilterPill label="Tareas" active={vista === 'tareas'} onClick={() => setVista('tareas')} />
           <FilterPill label="Reparaciones" active={vista === 'reparaciones'} onClick={() => setVista('reparaciones')} />
           <FilterPill label="Calendario" active={vista === 'calendario'} onClick={() => setVista('calendario')} />
         </div>
+
+        {vista === 'midia' && (
+          <MiDia
+            tareas={pendientes}
+            miId={profile?.id}
+            loading={loadingPendientes}
+            usuariosPorId={usuariosPorId}
+            reparacionesPorCliente={reparacionesPorCliente}
+            contadorNotas={contadorNotas}
+            onCircleClick={manejarClickCirculo}
+            onAbrirDetalle={setTareaDetalle}
+            onCrear={puedeCrear ? abrirNuevaTarea : undefined}
+          />
+        )}
 
         {vista === 'tareas' && (
           <>
