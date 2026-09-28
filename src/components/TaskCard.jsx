@@ -43,6 +43,7 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
   // tarea tiene client_id (hoy, sobre todo las que crea La Secre).
   const contexto = tarea.client_id ? reparacionesPorCliente?.get(tarea.client_id) : null
   const reparacion = reparacionDeTarea(contexto, tarea)
+  const reparacionEntregada = Boolean(tarea.repair_id) && reparacion?.status === 'entregado'
   const conPunto = tarea.prioridad === 'normal' || tarea.prioridad === 'baja'
 
   return (
@@ -119,6 +120,15 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
             <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">💬 {notaCount}</span>
           )}
         </div>
+
+        {/* Solo con reparacion enlazada (repair_id): las que se muestran por
+            cliente son siempre activas. No cierra la tarea sola -- a veces
+            sigue haciendo falta (p. ej. facturar); solo avisa. */}
+        {reparacionEntregada && !hecha && (
+          <p className="mt-2 rounded-lg border border-brand/40 bg-brand/15 px-2.5 py-1.5 text-xs font-semibold text-surface-text">
+            La reparación ya está entregada. Revisa si esta tarea sigue haciendo falta.
+          </p>
+        )}
 
         {contexto && (
           <div className="mt-2 pt-2 border-t border-surface-text/10 text-xs text-surface-text/60 space-y-0.5">

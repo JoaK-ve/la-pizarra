@@ -86,7 +86,7 @@ function tarjeta(t, hoy, appUrl) {
   if (t.reparacion) {
     const patin = [t.reparacion.marca, t.reparacion.modelo].filter(Boolean).join(' ') || 'Patinete sin marca/modelo'
     lineas.push(
-      `<div style="margin-top:4px;font-size:13px;color:#3b3f3d;"><strong>Reparación:</strong> ${esc(patin)} · ${esc(ESTADO_REPARACION[t.reparacion.estado] ?? t.reparacion.estado)}</div>`,
+      `<div style="margin-top:4px;font-size:13px;color:#3b3f3d;"><strong>Reparación:</strong> ${esc(patin)} · ${esc(ESTADO_REPARACION[t.reparacion.estado] ?? t.reparacion.estado)}${t.reparacion.estado === 'entregado' ? ' — ya entregada, revisa si esta tarea sigue haciendo falta' : ''}</div>`,
     )
   }
 

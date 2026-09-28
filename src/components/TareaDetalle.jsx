@@ -129,6 +129,11 @@ export default function TareaDetalle({
                         {ESTADO_REPARACION[reparacion.status] ?? reparacion.status}
                       </p>
                     )}
+                    {tarea.repair_id && reparacion?.status === 'entregado' && tarea.estado !== 'hecho' && (
+                      <p className="rounded-lg border border-brand/40 bg-brand/15 px-2.5 py-1.5 text-xs font-semibold">
+                        La reparación ya está entregada. Revisa si esta tarea sigue haciendo falta.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
