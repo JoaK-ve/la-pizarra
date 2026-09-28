@@ -8,6 +8,8 @@ import { useTareasConFecha } from '../hooks/useTareasConFecha'
 import { useContadorNotas } from '../hooks/useContadorNotas'
 import { useWorkshop } from '../hooks/useWorkshop'
 import { useNotificacionesPush } from '../hooks/useNotificacionesPush'
+import { useAvisoPrueba } from '../hooks/useAvisoPrueba'
+import { useAbrirTareaDesdeEnlace } from '../hooks/useAbrirTareaDesdeEnlace'
 import FilterPill from '../components/FilterPill'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
@@ -17,7 +19,7 @@ import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
 import BuildVersion from '../components/BuildVersion'
-import { BellIcon, LogoutIcon, PlusIcon } from '../components/icons'
+import { BellIcon, LogoutIcon, PlusIcon, SendIcon } from '../components/icons'
 
 const CONTEXTOS = [
   { value: 'todos', label: 'Todo' },
@@ -50,6 +52,9 @@ export default function Tareas() {
   // cuando ninguno de los dos esta abierto.
   const [tareaConfirmarHecha, setTareaConfirmarHecha] = useState(null)
   const [tareaDetalle, setTareaDetalle] = useState(null)
+  const { enviando: enviandoPrueba, lineas: lineasPrueba, enviar: enviarPrueba, cerrar: cerrarPrueba } = useAvisoPrueba()
+  // Enlaces de correos/push: /?tarea=<id> abre directamente esa tarea.
+  useAbrirTareaDesdeEnlace(setTareaDetalle)
 
   const { tareas, loading, error, toggleHecho, crearTarea } = useTareas({ contexto, asignadoA, mostrarHechas })
   // Contexto real del taller (cliente + reparacion activa) para las tareas
@@ -195,11 +200,35 @@ export default function Tareas() {
                 <BellIcon size={20} />
               </button>
             )}
+            <button
+              type="button"
+              onClick={enviarPrueba}
+              disabled={enviandoPrueba}
+              className="text-text/50 hover:text-text p-1 disabled:opacity-50"
+              aria-label="Enviar aviso de prueba"
+              title="Enviar aviso de prueba (push y correo)"
+            >
+              <SendIcon size={20} />
+            </button>
             <button type="button" onClick={signOut} className="text-text/50 hover:text-text p-1" aria-label="Cerrar sesión">
               <LogoutIcon size={20} />
             </button>
           </div>
         </header>
+
+        {lineasPrueba && (
+          <div className="mx-4 sm:mx-6 mt-2 rounded-xl border border-text/15 bg-text/5 px-4 py-3 text-sm text-text/90 flex items-start justify-between gap-3">
+            <div className="space-y-0.5">
+              <p className="font-display font-bold text-text">Resultado del aviso de prueba</p>
+              {lineasPrueba.map((linea) => (
+                <p key={linea}>{linea}</p>
+              ))}
+            </div>
+            <button type="button" onClick={cerrarPrueba} className="text-text/50 hover:text-text shrink-0" aria-label="Cerrar">
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Avisa de tareas vencidas o para hoy, sin importar en que
             pestaña estes -- ver Recordatorios.jsx. */}

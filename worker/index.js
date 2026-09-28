@@ -1,181 +1,82 @@
-import webpush from 'web-push'
 import { createClient } from '@supabase/supabase-js'
+import { enviarPushes, enviarResumenes, avisoDePrueba } from './avisos.js'
 
-// La Pizarra pasa de ser un Worker 100% estatico a uno hibrido: sigue
-// sirviendo la SPA igual que siempre (via el binding ASSETS), pero ahora
-// tambien corre dos crons -- ver `scheduled()` mas abajo. Handoff original:
-// la-pizarra-recordatorios-handoff.md (2026-09-22).
+// La Pizarra es un Worker hibrido: sirve la SPA (binding ASSETS) y ademas
+// tiene dos crons y dos rutas propias:
+//   GET  /logo/<workshop_id>   logo del taller como imagen (para los correos)
+//   POST /api/aviso-prueba     boton "Enviar aviso de prueba" de la app
+// Las rutas propias estan en `assets.run_worker_first` (wrangler.jsonc).
 
-// "06:00 UTC" -- aviso push, primera hora de la mañana en España (con el
-// desfase normal de +-1h segun horario de verano/invierno, sin ajuste
-// automatico -- Cloudflare Cron Triggers no soportan zona horaria).
+// "06:00 UTC" push, primera hora de la mañana en España. "08:00 UTC" resumen
+// por correo, ~10:00 en España. Los Cron Triggers no admiten zona horaria,
+// asi que hay +-1h segun horario de verano/invierno.
 const CRON_PUSH = '0 6 * * *'
-// "08:00 UTC" -- resumen por email, apunta a las ~10:00 hora España.
 const CRON_EMAIL = '0 8 * * *'
 
-export default {
-  async fetch(request, env) {
-    return env.ASSETS.fetch(request)
-  },
+const clienteAdmin = (env) => createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
-  async scheduled(event, env, ctx) {
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+const json = (cuerpo, estado = 200) =>
+  new Response(JSON.stringify(cuerpo), { status: estado, headers: { 'Content-Type': 'application/json' } })
 
-    if (event.cron === CRON_PUSH) {
-      webpush.setVapidDetails('mailto:contacto@wheelos.es', env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY)
-      ctx.waitUntil(enviarAvisosPush(supabase))
-    } else if (event.cron === CRON_EMAIL) {
-      ctx.waitUntil(enviarResumenEmail(supabase, env))
-    }
-  },
-}
+// Los logos viven en `workshops` como data URI en base64. Gmail y otros
+// clientes de correo bloquean las imagenes data:, asi que se sirven como
+// imagen normal. Solo expone el logo (marca publica del taller).
+async function servirLogo(env, tallerId) {
+  const { data } = await clienteAdmin(env)
+    .from('workshops')
+    .select('logo_wordmark_url, logo_icon_url')
+    .eq('id', tallerId)
+    .maybeSingle()
 
-function hoyISO(offsetDias = 0) {
-  const fecha = new Date(Date.now() + offsetDias * 86400000)
-  return fecha.toISOString().slice(0, 10)
-}
+  const dataUri = data?.logo_wordmark_url || data?.logo_icon_url
+  const coincidencia = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUri ?? '')
+  if (!coincidencia) return new Response('Sin logo', { status: 404 })
 
-// Dos avisos por tarea, cada uno una sola vez (decision del usuario,
-// 2026-09-22): 24h antes de vencer, y el dia del vencimiento. Solo tareas
-// PENDIENTES con alguien asignado -- las "sin asignar" no notifican a
-// nadie por ahora (no estaba definido a quien avisarle en ese caso).
-async function enviarAvisosPush(supabase) {
-  await avisarPorFecha(supabase, hoyISO(1), 'notificado_previo_at', 'Vence mañana')
-  await avisarPorFecha(supabase, hoyISO(0), 'notificado_vencimiento_at', 'Vence hoy')
-}
-
-async function avisarPorFecha(supabase, fecha, campoNotificado, etiqueta) {
-  const { data: tareas, error } = await supabase
-    .from('tareas')
-    .select('id, titulo, asignado_a')
-    .eq('fecha_limite', fecha)
-    .eq('estado', 'pendiente')
-    .is(campoNotificado, null)
-    .not('asignado_a', 'is', null)
-
-  if (error) {
-    console.error('Error buscando tareas para avisar:', error.message)
-    return
-  }
-
-  for (const tarea of tareas ?? []) {
-    const enviados = await notificarTarea(supabase, tarea, etiqueta)
-    // Solo se marca como avisada si el push salio de verdad. Antes se
-    // marcaba siempre, aunque no hubiera ninguna suscripcion -- el aviso
-    // se daba por hecho sin haber llegado a nadie (paso en la primera
-    // prueba real, 2026-09-23).
-    if (enviados > 0) {
-      await supabase
-        .from('tareas')
-        .update({ [campoNotificado]: new Date().toISOString() })
-        .eq('id', tarea.id)
-    } else {
-      console.warn(`Sin push enviado para "${tarea.titulo}" (${etiqueta}): la persona asignada no tiene suscripciones activas.`)
-    }
-  }
-}
-
-// Devuelve cuantos push se enviaron con exito.
-async function notificarTarea(supabase, tarea, etiqueta) {
-  const { data: suscripciones, error } = await supabase
-    .from('push_subscriptions')
-    .select('endpoint, p256dh, auth')
-    .eq('user_id', tarea.asignado_a)
-
-  if (error) {
-    console.error('Error buscando suscripciones:', error.message)
-    return 0
-  }
-
-  let enviados = 0
-
-  const payload = JSON.stringify({
-    title: `${etiqueta}: ${tarea.titulo}`,
-    body: 'Toca para abrir La Pizarra',
-    url: 'https://lapizarra.wheelos.es',
+  const binario = Uint8Array.from(atob(coincidencia[2]), (c) => c.charCodeAt(0))
+  return new Response(binario, {
+    headers: { 'Content-Type': coincidencia[1], 'Cache-Control': 'public, max-age=86400' },
   })
+}
 
-  for (const suscripcion of suscripciones ?? []) {
-    try {
-      await webpush.sendNotification(
-        { endpoint: suscripcion.endpoint, keys: { p256dh: suscripcion.p256dh, auth: suscripcion.auth } },
-        payload,
-      )
-      enviados++
-    } catch (err) {
-      // 404/410 = la suscripcion ya no existe del lado del navegador
-      // (desinstalo la PWA, borro datos, etc.) -- se borra para no
-      // reintentar en vano cada dia.
-      if (err.statusCode === 404 || err.statusCode === 410) {
-        await supabase.from('push_subscriptions').delete().eq('endpoint', suscripcion.endpoint)
-      } else {
-        console.error('Error enviando push:', err.message)
+// Identifica a la persona por el token de su sesion de Supabase.
+async function personaDelToken(env, peticion) {
+  const token = (peticion.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+  if (!token) return null
+  const supabase = clienteAdmin(env)
+  const { data: sesion } = await supabase.auth.getUser(token)
+  if (!sesion?.user) return null
+  const { data: persona } = await supabase
+    .from('users')
+    .select('id, workshop_id, full_name, email, active')
+    .eq('auth_user_id', sesion.user.id)
+    .maybeSingle()
+  return persona?.active ? persona : null
+}
+
+export default {
+  async fetch(peticion, env) {
+    const { pathname } = new URL(peticion.url)
+
+    const rutaLogo = /^\/logo\/([0-9a-f-]{36})$/i.exec(pathname)
+    if (rutaLogo && peticion.method === 'GET') return servirLogo(env, rutaLogo[1])
+
+    if (pathname === '/api/aviso-prueba' && peticion.method === 'POST') {
+      const persona = await personaDelToken(env, peticion)
+      if (!persona) return json({ error: 'No autorizado' }, 401)
+      try {
+        return json(await avisoDePrueba(clienteAdmin(env), env, persona))
+      } catch (err) {
+        console.error('Fallo el aviso de prueba:', err.message)
+        return json({ error: err.message }, 500)
       }
     }
-  }
-  return enviados
-}
 
-// Resumen diario por email: tareas vencidas + para hoy, agrupadas por
-// persona asignada. Sin ruido -- quien no tiene nada pendiente no recibe
-// email. El email de cada usuario vive en auth.users (Supabase Auth), no
-// en public.users, por eso hace falta el Admin API (getUserById).
-async function enviarResumenEmail(supabase, env) {
-  const hoy = hoyISO(0)
+    return env.ASSETS.fetch(peticion)
+  },
 
-  const { data: tareas, error } = await supabase
-    .from('tareas')
-    .select('titulo, fecha_limite, asignado_a')
-    .eq('estado', 'pendiente')
-    .lte('fecha_limite', hoy)
-    .not('fecha_limite', 'is', null)
-    .not('asignado_a', 'is', null)
-
-  if (error) {
-    console.error('Error buscando tareas para el resumen:', error.message)
-    return
-  }
-
-  const tareasPorUsuario = new Map()
-  for (const tarea of tareas ?? []) {
-    if (!tareasPorUsuario.has(tarea.asignado_a)) tareasPorUsuario.set(tarea.asignado_a, [])
-    tareasPorUsuario.get(tarea.asignado_a).push(tarea)
-  }
-
-  for (const [usuarioId, tareasUsuario] of tareasPorUsuario) {
-    const { data: perfil } = await supabase.from('users').select('auth_user_id').eq('id', usuarioId).single()
-    if (!perfil?.auth_user_id) continue
-
-    const { data: authData } = await supabase.auth.admin.getUserById(perfil.auth_user_id)
-    const email = authData?.user?.email
-    if (!email) continue
-
-    await mandarEmailResumen(env, email, tareasUsuario, hoy)
-  }
-}
-
-async function mandarEmailResumen(env, email, tareas, hoy) {
-  const filas = tareas
-    .map((t) => `<li>${t.titulo}${t.fecha_limite === hoy ? ' — vence hoy' : ' — vencida'}</li>`)
-    .join('')
-
-  const respuesta = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      // "onboarding@resend.dev" hasta que se verifique un dominio propio
-      // (ej. recordatorios@wheelos.es) en el panel de Resend.
-      from: 'La Pizarra <onboarding@resend.dev>',
-      to: email,
-      subject: `${tareas.length} tarea${tareas.length === 1 ? '' : 's'} pendiente${tareas.length === 1 ? '' : 's'} en La Pizarra`,
-      html: `<p>Tienes estas tareas vencidas o para hoy:</p><ul>${filas}</ul><p><a href="https://lapizarra.wheelos.es">Abrir La Pizarra</a></p>`,
-    }),
-  })
-
-  if (!respuesta.ok) {
-    console.error('Error enviando email de resumen:', respuesta.status, await respuesta.text())
-  }
+  async scheduled(evento, env, ctx) {
+    const supabase = clienteAdmin(env)
+    if (evento.cron === CRON_PUSH) ctx.waitUntil(enviarPushes(supabase, env).catch((e) => console.error('Cron push:', e.message)))
+    else if (evento.cron === CRON_EMAIL) ctx.waitUntil(enviarResumenes(supabase, env).catch((e) => console.error('Cron email:', e.message)))
+  },
 }

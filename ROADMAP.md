@@ -70,14 +70,14 @@ Handoff técnico del usuario (`la-pizarra-recordatorios-handoff.md`), revisado y
 
 Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de contexto "taller"; 99 reparaciones en WheelOS, 11 en `terminado` esperando recogida; el taller ya configuró en WheelOS `alert_days_terminado = 7` y `alert_days_stalled = 7`, que La Pizarra ignora). Problema de fondo: es una lista que hay que alimentar a mano al lado de un WheelOS que ya sabe qué necesita atención, y cuando algo falla no lo dice.
 
-**Fase A — Avisos por correo de verdad** (prioridad del usuario)
-- [ ] Remitente por taller sobre dominio verificado en Resend: `<fantasy_name> <avisos@wheelos.es>`, respuesta a `workshops.contact_email`. Hoy sale de `onboarding@resend.dev` (sandbox de Resend: solo entrega a la dueña de la cuenta → el correo casi seguro nunca llegó a nadie más).
-- [ ] Plantilla HTML por taller: logo y nombre del taller, tarjetas Vencidas / Vencen hoy / Vencen mañana con título, prioridad (colores de la app), fecha, descripción, cliente con teléfono pulsable, patinete y estado de la reparación, última nota, botón "Abrir tarea" (deep link `?tarea=<id>`), pie con dirección/teléfono/web del taller. Todo el texto de usuario ESCAPADO (hoy se pega crudo en el HTML).
-- [ ] Logo servido como imagen alojada por el Worker (Gmail bloquea data URIs).
-- [ ] Tabla `avisos_enviados` (tarea, persona, canal, tipo, resultado) en lugar de las marcas `notificado_*_at` en `tareas` (esas son por tarea, no por persona: si se reasigna, el nuevo responsable nunca recibe su aviso).
-- [ ] Usar `users.email` directamente (ya existe en WheelOS; hoy se pide al Admin API sin necesidad).
-- [ ] Botón "Enviar aviso de prueba" y errores visibles en la app.
-- [ ] GRANT SELECT a `service_role` en `tarea_notas` (hoy da 403) para poder incluir la última nota en el correo.
+**Fase A — Avisos por correo de verdad** (prioridad del usuario) — construida y desplegada en v0.7.0 (2026-09-28); **falta la verificación real**: que el usuario pulse el botón de aviso de prueba (icono de avión de papel en la cabecera) y confirme que el correo y el push llegan. `wheelos.es` ya estaba verificado en Resend y la migración `avisos_enviados` ya está corrida. Las columnas `tareas.notificado_previo_at`/`notificado_vencimiento_at` ya no se usan: borrarlas cuando se confirme que todo funciona.
+- [x] Remitente por taller sobre dominio verificado en Resend: `<fantasy_name> <avisos@wheelos.es>`, respuesta a `workshops.contact_email`. Hoy sale de `onboarding@resend.dev` (sandbox de Resend: solo entrega a la dueña de la cuenta → el correo casi seguro nunca llegó a nadie más).
+- [x] Plantilla HTML por taller: logo y nombre del taller, tarjetas Vencidas / Vencen hoy / Vencen mañana con título, prioridad (colores de la app), fecha, descripción, cliente con teléfono pulsable, patinete y estado de la reparación, última nota, botón "Abrir tarea" (deep link `?tarea=<id>`), pie con dirección/teléfono/web del taller. Todo el texto de usuario ESCAPADO (hoy se pega crudo en el HTML).
+- [x] Logo servido como imagen alojada por el Worker (Gmail bloquea data URIs).
+- [x] Tabla `avisos_enviados` (tarea, persona, canal, tipo, resultado) en lugar de las marcas `notificado_*_at` en `tareas` (esas son por tarea, no por persona: si se reasigna, el nuevo responsable nunca recibe su aviso).
+- [x] Usar `users.email` directamente (ya existe en WheelOS; hoy se pide al Admin API sin necesidad).
+- [x] Botón "Enviar aviso de prueba" y errores visibles en la app.
+- [x] GRANT SELECT a `service_role` en `tarea_notas` (hoy da 403) para poder incluir la última nota en el correo.
 
 **Fase B — Usabilidad básica**
 - [ ] Editar y borrar/archivar tareas (hoy no existe; hay basura como `20206-03-06` y títulos de prueba imposibles de corregir). Validar el año de las fechas.

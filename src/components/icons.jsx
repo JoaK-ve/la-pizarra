@@ -68,6 +68,15 @@ export function BellIcon(props) {
   )
 }
 
+export function SendIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+    </Icon>
+  )
+}
+
 export function SparkleIcon(props) {
   return (
     <Icon {...props}>

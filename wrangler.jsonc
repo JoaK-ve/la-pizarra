@@ -8,7 +8,8 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": ["/logo/*", "/api/*"]
   },
   "routes": [
     { "pattern": "lapizarra.wheelos.es", "custom_domain": true }
@@ -20,6 +21,8 @@
   },
   "vars": {
     "SUPABASE_URL": "https://ejtzoeaqwjktllqvhfsv.supabase.co",
+    "APP_URL": "https://lapizarra.wheelos.es",
+    "MAIL_FROM": "avisos@wheelos.es",
     "VAPID_PUBLIC_KEY": "BNloHmI2v6RQofJq3sQiKU2tGhnyEIsORRLOiXQOjIZEVZNBnVqtgPw2zv3u-kyu26St37aNWZP94-N647dsxlo"
   }
 }
