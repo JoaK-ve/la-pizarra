@@ -260,7 +260,10 @@ export default function Tareas() {
               </div>
             )}
             <div>
-              <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
+              <h1 className="flex items-center gap-2 font-display text-3xl font-bold text-text">
+                <img src="/la-pizarra-favicon-64x64.png" alt="" className="w-6 h-6 rounded-md" />
+                La Pizarra
+              </h1>
               {profile && (
                 <p className="text-text/50 text-sm mt-0.5">
                   {workshop?.fantasy_name && <span className="text-text/70">{workshop.fantasy_name} · </span>}
