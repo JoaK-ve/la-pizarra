@@ -79,12 +79,12 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 - [x] Botón "Enviar aviso de prueba" y errores visibles en la app.
 - [x] GRANT SELECT a `service_role` en `tarea_notas` (hoy da 403) para poder incluir la última nota en el correo.
 
-**Fase B — Usabilidad básica**
-- [ ] Editar y borrar/archivar tareas (hoy no existe; hay basura como `20206-03-06` y títulos de prueba imposibles de corregir). Validar el año de las fechas.
-- [ ] Alta rápida: solo título + "Hoy / Mañana / Elegir", opciones extra plegadas. Quitar `contexto` (taller/personal/familia): 100% de las tareas son "taller".
-- [ ] Pantalla de entrada "Mi día": vencidas / hoy / esta semana / sin fecha, para mí o sin asignar; eliminar las tres filas de filtros.
-- [ ] Avisar a la persona cuando le asignan una tarea.
-- [ ] Mostrar errores al usuario (hoy, si RLS bloquea "marcar hecha", no se ve nada).
+**Fase B — Usabilidad básica** — construida y desplegada el 2026-09-28 en 4 entregas (v0.8.0 editar/borrar + errores visibles; v0.8.1 alta rápida; v0.9.0 Mi día; v0.10.0 aviso al asignar). **Falta la verificación real del usuario** de cada una (necesitan su sesión). Para borrar tareas se corrió el SQL de permisos (policy DELETE en `tareas`). Los avisos por asignación se registran en `avisos_enviados` con tipo `asignacion`; hay un anti-spam de 10 min por tarea y persona, y no se avisa a quien se asigna a sí mismo.
+- [x] Editar y borrar/archivar tareas (hoy no existe; hay basura como `20206-03-06` y títulos de prueba imposibles de corregir). Validar el año de las fechas.
+- [x] Alta rápida: solo título + "Hoy / Mañana / Elegir", opciones extra plegadas. Quitar `contexto` (taller/personal/familia): 100% de las tareas son "taller".
+- [x] Pantalla de entrada "Mi día": vencidas / hoy / esta semana / sin fecha, para mí o sin asignar; eliminar las tres filas de filtros.
+- [x] Avisar a la persona cuando le asignan una tarea.
+- [x] Mostrar errores al usuario (hoy, si RLS bloquea "marcar hecha", no se ve nada).
 
 **Fase C — Integración con WheelOS**
 - [ ] `tareas.repair_id`: enlazar a la reparación exacta (hoy solo al cliente, y un cliente puede tener varias).
@@ -99,11 +99,11 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 
 **Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). `wheelos.es` ya estaba verificado en Resend (respondido). Sigue pendiente de respuesta: el patrón de URL de una reparación en WheelOS (para la fase C).
 
-**Estado al cierre del 2026-09-28 (mañana):** fase A hecha y verificada (v0.7.0 → v0.7.1). v0.7.1 puso la cabecera del correo en oscuro porque el logo del taller tiene letras blancas (pensado para fondo oscuro) y no se veía sobre blanco; falta que el usuario confirme que ya se ve. Siguiente: **fase B**, empezando por editar y borrar/archivar tareas (con validación del año en las fechas), luego alta rápida y pantalla "Mi día".
+**Estado a 2026-09-28 (tarde):** fase A y fase B construidas y desplegadas (v0.10.0). Pendiente de verificar por el usuario: editar/borrar una tarea, alta rápida, Mi día y un aviso real al asignar a otra persona; y el primer resumen automático (29/09 ~10:00). Siguiente: **fase C** (integración con WheelOS), para la que falta el patrón de URL de una reparación en WheelOS.
 
 ## En curso
 
-- **Fase B del plan de mejoras** (siguiente en arrancar, esta tarde): editar/borrar tareas → alta rápida → "Mi día" → aviso al asignar → errores visibles.
+- **Fase C del plan de mejoras** (siguiente): `repair_id`, llamar/WhatsApp de un toque, "Necesita atención" con los umbrales del taller, plantillas y cierre automático.
 - **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09); (3) tras confirmar todo, borrar las columnas `tareas.notificado_previo_at/notificado_vencimiento_at`, que ya no se usan.
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
 - **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.

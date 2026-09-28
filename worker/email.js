@@ -108,7 +108,7 @@ function tarjeta(t, hoy, appUrl) {
     <div style="font-size:16px;font-weight:700;line-height:1.3;color:#1c1f1e;">${esc(t.titulo)}</div>
     <div style="margin-top:8px;font-size:12px;">
       <span style="display:inline-block;padding:2px 9px;border-radius:999px;background:${prioridad.color};color:#ffffff;font-weight:600;">${esc(prioridad.etiqueta)}</span>
-      <span style="margin-left:6px;color:#3b3f3d;font-weight:600;">${esc(textoFecha(t.fecha_limite, hoy))}</span>
+      <span style="margin-left:6px;color:#3b3f3d;font-weight:600;">${esc(t.fecha_limite ? textoFecha(t.fecha_limite, hoy) : 'Sin fecha límite')}</span>
     </div>
     ${lineas.join('')}
     <div style="margin-top:12px;">
@@ -125,24 +125,19 @@ function seccion(titulo, color, tareas, hoy, appUrl) {
 ${tareas.map((t) => tarjeta(t, hoy, appUrl)).join('')}`
 }
 
-// Devuelve { asunto, html, texto } para UNA persona de UN taller.
-export function renderResumen({ taller, persona, secciones, hoy, appUrl, prueba = false }) {
-  const { vencidas, hoy: paraHoy, manana } = secciones
+// Marco comun de todos los correos: cabecera oscura con el logo del taller
+// (los logos de WheelOS estan pensados para fondo oscuro), el cuerpo, y un pie
+// con los datos de contacto DEL TALLER. `intro` es HTML ya escapado.
+function envolver({ taller, asunto, preheader, saludo, intro, cuerpo, motivo, appUrl, aviso = '' }) {
   const nombre = taller.fantasy_name || 'Tu taller'
-  const primerNombre = (persona.full_name || '').split(' ')[0] || 'hola'
-  const corto = resumenCorto(secciones)
-  const asunto = `${prueba ? '[Prueba] ' : ''}${corto} · ${nombre}`
   const logo = `${appUrl}/logo/${encodeURIComponent(taller.id)}`
-
   const contacto = [taller.address, taller.phone, taller.website].filter(Boolean)
-  const pie = contacto.length
-    ? `<div style="margin-top:4px;">${contacto.map(esc).join(' · ')}</div>`
-    : ''
+  const pie = contacto.length ? `<div style="margin-top:4px;">${contacto.map(esc).join(' · ')}</div>` : ''
 
-  const html = `<!doctype html>
+  return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(asunto)}</title></head>
 <body style="margin:0;padding:0;background:#efece2;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(corto)} — ${esc(nombre)}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#efece2;">
 <tr><td align="center" style="padding:24px 12px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
@@ -150,22 +145,49 @@ export function renderResumen({ taller, persona, secciones, hoy, appUrl, prueba 
       <img src="${esc(logo)}" alt="${esc(nombre)}" height="44" style="display:block;height:44px;max-width:260px;border:0;">
     </td></tr>
     <tr><td style="background:#f2efe4;padding:22px 24px 26px;border-radius:0 0 12px 12px;font-family:${FUENTE};color:#1c1f1e;">
-      ${prueba ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff3cd;border-radius:6px;font-size:12px;color:#5c4a00;">Aviso de prueba: así se verá tu resumen diario.</div>` : ''}
-      <div style="font-size:20px;font-weight:700;">Hola, ${esc(primerNombre)}</div>
-      <div style="margin-top:6px;font-size:14px;line-height:1.45;color:#3b3f3d;">Estas son tus tareas de La Pizarra que requieren atención: <strong>${esc(corto)}</strong>.</div>
-      ${seccion('Vencidas', '#b23a2e', vencidas, hoy, appUrl)}
-      ${seccion('Vencen hoy', '#1c1f1e', paraHoy, hoy, appUrl)}
-      ${seccion('Vencen mañana', '#6b6558', manana, hoy, appUrl)}
+      ${aviso ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff3cd;border-radius:6px;font-size:12px;color:#5c4a00;">${esc(aviso)}</div>` : ''}
+      <div style="font-size:20px;font-weight:700;">${esc(saludo)}</div>
+      <div style="margin-top:6px;font-size:14px;line-height:1.45;color:#3b3f3d;">${intro}</div>
+      ${cuerpo}
       <div style="margin-top:26px;padding-top:14px;border-top:1px solid #dcd6c5;font-size:12px;line-height:1.5;color:#6b6558;">
         <strong style="color:#3b3f3d;">${esc(nombre)}</strong>
         ${pie}
-        <div style="margin-top:8px;">Recibes este aviso porque tienes tareas asignadas en La Pizarra de ${esc(nombre)}. Si respondes a este correo, le llega al taller.</div>
+        <div style="margin-top:8px;">${esc(motivo)} Si respondes a este correo, le llega al taller.</div>
       </div>
     </td></tr>
   </table>
 </td></tr>
 </table>
 </body></html>`
+}
+
+function pieTexto(taller, appUrl) {
+  const contacto = [taller.address, taller.phone, taller.website].filter(Boolean)
+  return `\nAbrir La Pizarra: ${appUrl}\n\n${taller.fantasy_name || 'Tu taller'}${contacto.length ? ' · ' + contacto.join(' · ') : ''}\n`
+}
+
+// Resumen diario: devuelve { asunto, html, texto } para UNA persona de UN taller.
+export function renderResumen({ taller, persona, secciones, hoy, appUrl, prueba = false }) {
+  const { vencidas, hoy: paraHoy, manana } = secciones
+  const nombre = taller.fantasy_name || 'Tu taller'
+  const primerNombre = (persona.full_name || '').split(' ')[0] || 'hola'
+  const corto = resumenCorto(secciones)
+  const asunto = `${prueba ? '[Prueba] ' : ''}${corto} · ${nombre}`
+
+  const html = envolver({
+    taller,
+    asunto,
+    preheader: `${corto} — ${nombre}`,
+    saludo: `Hola, ${primerNombre}`,
+    intro: `Estas son tus tareas de La Pizarra que requieren atención: <strong>${esc(corto)}</strong>.`,
+    cuerpo:
+      seccion('Vencidas', '#b23a2e', vencidas, hoy, appUrl) +
+      seccion('Vencen hoy', '#1c1f1e', paraHoy, hoy, appUrl) +
+      seccion('Vencen mañana', '#6b6558', manana, hoy, appUrl),
+    motivo: `Recibes este aviso porque tienes tareas asignadas en La Pizarra de ${nombre}.`,
+    appUrl,
+    aviso: prueba ? 'Aviso de prueba: así se verá tu resumen diario.' : '',
+  })
 
   const bloqueTexto = (titulo, tareas) =>
     tareas.length
@@ -179,7 +201,36 @@ export function renderResumen({ taller, persona, secciones, hoy, appUrl, prueba 
     bloqueTexto('Vencidas', vencidas) +
     bloqueTexto('Vencen hoy', paraHoy) +
     bloqueTexto('Vencen mañana', manana) +
-    `\nAbrir La Pizarra: ${appUrl}\n\n${nombre}${contacto.length ? ' · ' + contacto.join(' · ') : ''}\n`
+    pieTexto(taller, appUrl)
+
+  return { asunto, html, texto }
+}
+
+// Aviso inmediato: alguien le ha asignado una tarea a esta persona.
+export function renderAsignacion({ taller, persona, asignador, tarea, hoy, appUrl }) {
+  const nombre = taller.fantasy_name || 'Tu taller'
+  const primerNombre = (persona.full_name || '').split(' ')[0] || 'hola'
+  const quien = asignador.full_name || 'Alguien'
+  const asunto = `${quien.split(' ')[0]} te ha asignado una tarea · ${nombre}`
+
+  const html = envolver({
+    taller,
+    asunto,
+    preheader: `${quien} te ha asignado: ${recortar(tarea.titulo, 80)}`,
+    saludo: `Hola, ${primerNombre}`,
+    intro: `<strong>${esc(quien)}</strong> te ha asignado esta tarea en La Pizarra:`,
+    cuerpo: `<div style="margin-top:16px;">${tarjeta(tarea, hoy, appUrl)}</div>`,
+    motivo: `Recibes este aviso porque te han asignado una tarea en La Pizarra de ${nombre}.`,
+    appUrl,
+  })
+
+  const fecha = tarea.fecha_limite ? textoFecha(tarea.fecha_limite, hoy) : 'Sin fecha límite'
+  const texto =
+    `Hola, ${primerNombre}. ${quien} te ha asignado una tarea en La Pizarra:\n\n` +
+    `- ${tarea.titulo} [${(PRIORIDAD[tarea.prioridad] ?? PRIORIDAD.normal).etiqueta}] ${fecha}` +
+    `${tarea.cliente ? ` | Cliente: ${tarea.cliente.nombre}${tarea.cliente.telefono ? ` ${tarea.cliente.telefono}` : ''}` : ''}\n` +
+    `Abrir la tarea: ${appUrl}/?tarea=${tarea.id}\n` +
+    pieTexto(taller, appUrl)
 
   return { asunto, html, texto }
 }

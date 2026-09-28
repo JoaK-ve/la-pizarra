@@ -1,5 +1,5 @@
 import webpush from 'web-push'
-import { renderResumen, enviarEmail } from './email.js'
+import { renderResumen, renderAsignacion, enviarEmail } from './email.js'
 
 const DIA_MS = 86400000
 
@@ -326,6 +326,99 @@ export async function avisoDePrueba(supabase, env, persona) {
     : { ok: false, estado: 0, detalle: 'La persona no tiene email en WheelOS' }
 
   return {
+    push: { dispositivos: push.enviados, errores: push.errores },
+    email: { ok: email.ok, para: persona.email, detalle: email.detalle },
+  }
+}
+
+// Aviso inmediato al asignar (o reasignar) una tarea: push a los dispositivos
+// de la persona y un correo con la tarjeta de la tarea. Lo dispara la app
+// justo despues de guardar. `asignador` es quien lo pide (viene del token).
+// No avisa si se la asigno a si mismo, si la tarea es de otro taller o ya
+// no esta pendiente, ni si esa persona ya recibio este aviso hace minutos
+// (doble toque o llamadas repetidas).
+export async function avisoDeAsignacion(supabase, env, asignador, tareaId) {
+  const { data: tarea } = await supabase
+    .from('tareas')
+    .select('id, workshop_id, titulo, descripcion, prioridad, estado, fecha_limite, asignado_a, creado_por, client_id')
+    .eq('id', tareaId)
+    .maybeSingle()
+
+  if (!tarea || tarea.workshop_id !== asignador.workshop_id) return { omitido: 'La tarea no existe.' }
+  if (tarea.estado !== 'pendiente') return { omitido: 'La tarea ya no está pendiente.' }
+  if (!tarea.asignado_a) return { omitido: 'La tarea no tiene a nadie asignado.' }
+  if (tarea.asignado_a === asignador.id) return { omitido: 'Te la asignaste a ti mismo.' }
+
+  const haceDiezMinutos = new Date(Date.now() - 10 * 60000).toISOString()
+  const { data: reciente } = await supabase
+    .from('avisos_enviados')
+    .select('id')
+    .eq('tarea_id', tarea.id)
+    .eq('user_id', tarea.asignado_a)
+    .eq('tipo', 'asignacion')
+    .eq('estado', 'enviado')
+    .gte('created_at', haceDiezMinutos)
+    .limit(1)
+  if (reciente?.length) return { omitido: 'Ya se le avisó hace un momento.' }
+
+  const ctx = await cargarContexto(supabase, [tarea])
+  const persona = ctx.usuarios.get(tarea.asignado_a)
+  const taller = ctx.talleres.get(tarea.workshop_id)
+  if (!persona?.active || !taller) return { omitido: 'La persona asignada no está activa.' }
+
+  webpush.setVapidDetails(`mailto:${env.MAIL_FROM}`, env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY)
+  const quien = asignador.full_name || 'Alguien'
+  const base = {
+    workshop_id: tarea.workshop_id,
+    tarea_id: tarea.id,
+    user_id: persona.id,
+    tipo: 'asignacion',
+    fecha_limite: tarea.fecha_limite,
+  }
+
+  const push = await mandarPush(supabase, persona.id, {
+    title: `Nueva tarea: ${tarea.titulo}`,
+    body: `Te la ha asignado ${quien} · ${taller.fantasy_name ?? 'La Pizarra'}`,
+    url: `${env.APP_URL}/?tarea=${tarea.id}`,
+  })
+  if (push.enviados > 0 || push.errores.length) {
+    await registrarAviso(supabase, {
+      ...base,
+      canal: 'push',
+      estado: push.enviados > 0 ? 'enviado' : 'fallido',
+      detalle: push.enviados > 0 ? `${push.enviados} dispositivo(s)` : push.errores.join(' | ').slice(0, 300),
+    })
+  }
+
+  let email = { ok: false, estado: 0, detalle: 'La persona no tiene email en WheelOS' }
+  if (persona.email) {
+    const tarjeta = { ...tarjetaDeTarea(tarea, ctx), creadaPor: null }
+    const { asunto, html, texto } = renderAsignacion({
+      taller,
+      persona,
+      asignador,
+      tarea: tarjeta,
+      hoy: fechaISO(0),
+      appUrl: env.APP_URL,
+    })
+    email = await enviarEmail(env, {
+      nombreTaller: taller.fantasy_name,
+      para: persona.email,
+      responderA: taller.contact_email,
+      asunto,
+      html,
+      texto,
+    })
+  }
+  await registrarAviso(supabase, {
+    ...base,
+    canal: 'email',
+    estado: email.ok ? 'enviado' : 'fallido',
+    detalle: email.ok ? persona.email : `${email.estado ? `Resend ${email.estado}: ` : ''}${email.detalle}`,
+  })
+
+  return {
+    persona: persona.full_name,
     push: { dispositivos: push.enviados, errores: push.errores },
     email: { ok: email.ok, para: persona.email, detalle: email.detalle },
   }

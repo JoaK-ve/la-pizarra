@@ -16,6 +16,7 @@ import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
 import Recordatorios from '../components/Recordatorios'
 import MiDia from '../components/MiDia'
+import { avisarAsignacion } from '../lib/avisos'
 import Toast from '../components/Toast'
 import { useTareasPendientes } from '../hooks/useTareasPendientes'
 import { useToast } from '../hooks/useToast'
@@ -110,8 +111,21 @@ export default function Tareas() {
   // tener que salir y volver a entrar a esa pestaña.
   async function crearTareaYRefrescar(datos) {
     const resultado = await crearTarea(datos)
-    if (resultado.ok) recargarListas()
+    if (resultado.ok) {
+      recargarListas()
+      avisarSiCorresponde(resultado.id, datos.asignadoA, resultado.creadaPor)
+    }
     return resultado
+  }
+
+  // Avisa (push + correo) a la persona a la que se le asigna una tarea, salvo
+  // que se la asigne a si misma. No se espera: el formulario no debe quedarse
+  // esperando el envio; el resultado sale despues como aviso emergente.
+  async function avisarSiCorresponde(tareaId, asignadoA, quienLaAsigna) {
+    if (!asignadoA || asignadoA === quienLaAsigna) return
+    const nombre = usuariosPorId.get(asignadoA)?.full_name.split(' ')[0] ?? 'la persona'
+    const resultado = await avisarAsignacion(tareaId, nombre)
+    if (resultado.texto) mostrarToast(resultado.texto, resultado.ok ? 'ok' : 'error')
   }
 
   function abrirTareaDesdeReparacion(reparacion) {
@@ -144,11 +158,15 @@ export default function Tareas() {
   }
 
   async function editarTareaYRefrescar(id, campos) {
+    const asignadaAntes = tareaDetalle?.asignado_a ?? null
     const resultado = await editarTarea(id, campos)
     if (resultado.ok) {
       setTareaDetalle(resultado.tarea)
       recargarListas()
       mostrarToast('Tarea actualizada', 'ok')
+      // Solo si cambio la persona asignada: editar el titulo o la fecha de
+      // una tarea ya asignada no vuelve a avisar.
+      if (campos.asignadoA && campos.asignadoA !== asignadaAntes) avisarSiCorresponde(id, campos.asignadoA, profile?.id)
     }
     return resultado
   }

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { enviarPushes, enviarResumenes, avisoDePrueba } from './avisos.js'
+import { enviarPushes, enviarResumenes, avisoDePrueba, avisoDeAsignacion } from './avisos.js'
 
 // La Pizarra es un Worker hibrido: sirve la SPA (binding ASSETS) y ademas
 // tiene dos crons y dos rutas propias:
@@ -67,6 +67,19 @@ export default {
         return json(await avisoDePrueba(clienteAdmin(env), env, persona))
       } catch (err) {
         console.error('Fallo el aviso de prueba:', err.message)
+        return json({ error: err.message }, 500)
+      }
+    }
+
+    if (pathname === '/api/aviso-asignacion' && peticion.method === 'POST') {
+      const persona = await personaDelToken(env, peticion)
+      if (!persona) return json({ error: 'No autorizado' }, 401)
+      const { tareaId } = await peticion.json().catch(() => ({}))
+      if (!/^[0-9a-f-]{36}$/i.test(tareaId ?? '')) return json({ error: 'Falta el id de la tarea' }, 400)
+      try {
+        return json(await avisoDeAsignacion(clienteAdmin(env), env, persona, tareaId))
+      } catch (err) {
+        console.error('Fallo el aviso de asignacion:', err.message)
         return json({ error: err.message }, 500)
       }
     }
