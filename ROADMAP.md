@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-29 (tarde).
+Última actualización: 2026-09-29 (noche).
 
 ## Hecho (V1)
 
@@ -100,6 +100,10 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 **Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). `wheelos.es` ya estaba verificado en Resend (respondido). Sigue pendiente de respuesta: el patrón de URL de una reparación en WheelOS (para la fase C).
 
 **Estado al cierre de la sesión (2026-09-28):** las fases A, B, C y D del plan están construidas y desplegadas (v0.15.0). **Verificado con datos reales en la base:** aviso de prueba (push + correo), aviso al asignar a una persona real (correo a otra cuenta, 14:39) y la tabla `pizarra_preferencias` creada y legible por el Worker. El usuario probó Ajustes y dijo que "todo funciona". **Sin confirmar todavía:** que un cambio de Ajustes llegue a guardarse (la tabla seguía vacía), y el primer resumen automático real (esperado el 29/09 a las 10:00 de Madrid). Pendiente de comprobar por el usuario: Mi día, tarea enlazada a su reparación, Necesitan atención y número de orden. **Limpieza hecha (2026-09-28):** columnas `tareas.notificado_previo_at`/`notificado_vencimiento_at` borradas (ya no las usaba nada, reemplazadas por `avisos_enviados`); confirmado que `tareas` sigue funcionando bien. Mejoras futuras: enlace directo a una reparación de WheelOS (depende de WheelOS) y país/zona horaria por taller. **Icono real puesto (2026-09-29, v0.15.1/v0.15.2):** el usuario dejó `Icono La Pizarra.png` (1254×1254, cuadrada de origen, sin rótulo) -- de ahí se generaron con sharp-cli los tamaños 192 y 512 para el manifest de la PWA (antes solo había 64×64), y quedaron también como `maskable` para Android. El apple-touch-icon y el icono de las notificaciones push usan el de 192.
+
+## Hecho (2026-09-29, v0.15.3) -- fix real: la PWA nunca era instalable en Android
+
+El usuario probo desde su Android y no le salia la opcion de "Instalar". Causa: el Service Worker no tenia ningun manejador de  -- Chrome lo exige (aunque no haga nada) para considerar instalable una PWA; sin el, nunca se ofrece instalar. Se agrego un manejador vacio (sin , deja pasar todo a la red igual que antes). No se habia detectado hasta que alguien probo de verdad en un Android real.
 
 ## En curso
 
