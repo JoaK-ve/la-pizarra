@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-22.
+Última actualización: 2026-09-28.
 
 ## Hecho (V1)
 
@@ -58,10 +58,52 @@ Handoff técnico del usuario (`la-pizarra-recordatorios-handoff.md`), revisado y
 - No hay todavía forma de **editar** una tarea ya creada (solo crear/marcar hecha/agregar notas) — el handoff pedía resetear los avisos si se cambia la fecha límite, pero esa función no existe aún, así que queda anotado para cuando se construya.
 - Las tareas "sin asignar" no disparan ningún aviso (push ni email) — el handoff no definió a quién avisarle en ese caso.
 
+## Hecho (2026-09-28, v0.6.1) — la primera prueba real del push falló; diagnóstico con datos reales
+
+- El cron SÍ corrió (23/09 06:01 UTC), pero `push_subscriptions` estaba vacía: ninguna suscripción llegó a guardarse. Causa: el hook usaba `upsert`, que exige permiso de UPDATE que la tabla no da → fallaba en silencio y la campanita se ocultaba igual.
+- Arreglado: el hook usa INSERT (ignora el duplicado), re-sincroniza la suscripción en cada carga de la app y, si falla, la campanita reaparece en rojo con el motivo.
+- El Worker ya solo marca un aviso como enviado si el push salió de verdad (antes lo marcaba siempre). Logs del Worker activados (`observability`).
+- Verificado: suscripción guardada en la base y push de prueba aceptado por FCM (201).
+- Recordar: el push va SOLO a la persona asignada, y esa persona debe activar la campanita en su propio dispositivo.
+
+## Plan de mejoras (análisis profundo del 2026-09-28) — se resuelve punto por punto
+
+Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de contexto "taller"; 99 reparaciones en WheelOS, 11 en `terminado` esperando recogida; el taller ya configuró en WheelOS `alert_days_terminado = 7` y `alert_days_stalled = 7`, que La Pizarra ignora). Problema de fondo: es una lista que hay que alimentar a mano al lado de un WheelOS que ya sabe qué necesita atención, y cuando algo falla no lo dice.
+
+**Fase A — Avisos por correo de verdad** (prioridad del usuario)
+- [ ] Remitente por taller sobre dominio verificado en Resend: `<fantasy_name> <avisos@wheelos.es>`, respuesta a `workshops.contact_email`. Hoy sale de `onboarding@resend.dev` (sandbox de Resend: solo entrega a la dueña de la cuenta → el correo casi seguro nunca llegó a nadie más).
+- [ ] Plantilla HTML por taller: logo y nombre del taller, tarjetas Vencidas / Vencen hoy / Vencen mañana con título, prioridad (colores de la app), fecha, descripción, cliente con teléfono pulsable, patinete y estado de la reparación, última nota, botón "Abrir tarea" (deep link `?tarea=<id>`), pie con dirección/teléfono/web del taller. Todo el texto de usuario ESCAPADO (hoy se pega crudo en el HTML).
+- [ ] Logo servido como imagen alojada por el Worker (Gmail bloquea data URIs).
+- [ ] Tabla `avisos_enviados` (tarea, persona, canal, tipo, resultado) en lugar de las marcas `notificado_*_at` en `tareas` (esas son por tarea, no por persona: si se reasigna, el nuevo responsable nunca recibe su aviso).
+- [ ] Usar `users.email` directamente (ya existe en WheelOS; hoy se pide al Admin API sin necesidad).
+- [ ] Botón "Enviar aviso de prueba" y errores visibles en la app.
+- [ ] GRANT SELECT a `service_role` en `tarea_notas` (hoy da 403) para poder incluir la última nota en el correo.
+
+**Fase B — Usabilidad básica**
+- [ ] Editar y borrar/archivar tareas (hoy no existe; hay basura como `20206-03-06` y títulos de prueba imposibles de corregir). Validar el año de las fechas.
+- [ ] Alta rápida: solo título + "Hoy / Mañana / Elegir", opciones extra plegadas. Quitar `contexto` (taller/personal/familia): 100% de las tareas son "taller".
+- [ ] Pantalla de entrada "Mi día": vencidas / hoy / esta semana / sin fecha, para mí o sin asignar; eliminar las tres filas de filtros.
+- [ ] Avisar a la persona cuando le asignan una tarea.
+- [ ] Mostrar errores al usuario (hoy, si RLS bloquea "marcar hecha", no se ve nada).
+
+**Fase C — Integración con WheelOS**
+- [ ] `tareas.repair_id`: enlazar a la reparación exacta (hoy solo al cliente, y un cliente puede tener varias).
+- [ ] Botones de un toque para llamar y escribir por WhatsApp desde tarjetas de tarea y de reparación.
+- [ ] Sección "Necesita atención" con los umbrales del propio taller (`alert_days_terminado`, `alert_days_stalled`), creando la tarea con un toque ("Avisar a X: patinete terminado hace 9 días").
+- [ ] Plantillas de tarea ("Avisar que está listo", "Pedir repuesto"…) y cierre automático al pasar la reparación a `entregado`.
+- [ ] Enlaces cruzados con WheelOS (falta saber el patrón de URL de una reparación).
+
+**Fase D — Ajustes por persona y multi-taller**
+- [ ] Pantalla de ajustes: canales activos, hora del resumen.
+- [ ] Mostrar el nombre del taller en la cabecera; nada fijo de TG Patinetes en código ni plantillas (hay 2 talleres en WheelOS: TG Patinetes y WheelOS Demo).
+
+**Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). Pendientes de respuesta: si `wheelos.es` ya está verificado en Resend, y el patrón de URL de una reparación en WheelOS.
+
 ## En curso
 
+- **Fase A del plan de mejoras.**
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
-- **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta.** Se verificó cada pieza a medida que se construía, pero no hay una revisión final de "sí, así queda" sobre el conjunto completo.
+- **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.
 
 ## Próximo (sin fecha aún)
 
