@@ -105,6 +105,12 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 
 El usuario probó desde su Android y no le salía la opción de "Instalar". Causa: el Service Worker no tenía ningún manejador de `fetch` -- Chrome lo exige (aunque no haga nada) para considerar instalable una PWA; sin él, nunca se ofrece instalar. Se agregó un manejador vacío (sin `respondWith`), deja pasar todo a la red igual que antes. **Verificado en real (2026-09-29): el usuario lo instaló desde su Android sin problema.**
 
+## Hecho (2026-09-29, v0.15.4) -- vista previa del enlace y kit de marca
+
+El usuario fue generando el kit de marca de La Pizarra (logo, icono, variantes de color, favicons...). De los 5 archivos limpios que llegaron a la carpeta, se usó el horizontal sobre fondo oscuro para crear `og-image.png` (1200x630, con el mismo fondo exacto de la imagen original) y las etiquetas `og:*`/`twitter:card` en `index.html`: ahora compartir el enlace en WhatsApp/Slack muestra una vista previa con el logo real (antes no mostraba nada).
+
+Los demás archivos limpios (`05_Logo_Fondo_Claro`, `07_Version_Compacta_Solo_Simbolo`) quedan guardados como material de marca sin uso técnico inmediato -- no van en los correos ni en el header, que usan el logo del TALLER, no el de La Pizarra. Dos de los archivos (`08`, `09`) son solo hojas de referencia del kit completo (con rótulos dentro de la imagen), no assets individuales -- de las 12 piezas que el "09" muestra en su índice, solo 5 llegaron como archivos reales.
+
 ## En curso
 
 - **Verificación real por el usuario de las fases B, C y D** (ver el estado al cierre de arriba).
