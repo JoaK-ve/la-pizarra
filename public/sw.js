@@ -6,7 +6,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(datos.title || 'La Pizarra', {
       body: datos.body || '',
-      icon: '/favicon.svg',
+      icon: '/la-pizarra-favicon-64x64.png',
       data: { url: datos.url || '/' },
     }),
   )
