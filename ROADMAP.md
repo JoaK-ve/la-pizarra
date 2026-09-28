@@ -103,7 +103,7 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 
 ## Hecho (2026-09-29, v0.15.3) -- fix real: la PWA nunca era instalable en Android
 
-El usuario probo desde su Android y no le salia la opcion de "Instalar". Causa: el Service Worker no tenia ningun manejador de  -- Chrome lo exige (aunque no haga nada) para considerar instalable una PWA; sin el, nunca se ofrece instalar. Se agrego un manejador vacio (sin , deja pasar todo a la red igual que antes). No se habia detectado hasta que alguien probo de verdad en un Android real.
+El usuario probó desde su Android y no le salía la opción de "Instalar". Causa: el Service Worker no tenía ningún manejador de `fetch` -- Chrome lo exige (aunque no haga nada) para considerar instalable una PWA; sin él, nunca se ofrece instalar. Se agregó un manejador vacío (sin `respondWith`), deja pasar todo a la red igual que antes. No se había detectado hasta que alguien probó de verdad en un Android real.
 
 ## En curso
 
