@@ -1,4 +1,5 @@
 import { PlusIcon } from './icons'
+import BotonesContacto from './BotonesContacto'
 
 const ESTADO_LABEL = {
   pendiente: 'Pendiente',
@@ -16,7 +17,10 @@ export default function RepairCard({ reparacion, puedeCrear, onCrearTarea }) {
           {reparacion.client_name_snapshot || 'Cliente sin nombre'}
         </p>
         {reparacion.client_phone_snapshot && (
-          <p className="text-sm text-surface-text/60 mt-0.5">📱 {reparacion.client_phone_snapshot}</p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <p className="text-sm text-surface-text/60">{reparacion.client_phone_snapshot}</p>
+            <BotonesContacto telefono={reparacion.client_phone_snapshot} />
+          </div>
         )}
         {reparacion.client_problem && <p className="text-sm text-surface-text/70 mt-1">{reparacion.client_problem}</p>}
 

@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { useTareaNotas } from '../hooks/useTareaNotas'
 import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA, soloFecha } from '../utils/fechas'
 import { CloseIcon, PencilIcon, TrashIcon } from './icons'
+import BotonesContacto from './BotonesContacto'
+
+const ESTADO_REPARACION = {
+  pendiente: 'Pendiente',
+  en_progreso: 'En progreso',
+  terminado: 'Terminado',
+  entregado: 'Entregado',
+}
 
 const PRIORIDADES = [
   { value: 'urgente', label: 'Urgente' },
@@ -27,7 +35,16 @@ function formatearFechaLegible(fechaLimite) {
 // dejar constancia de que "pedi la pieza" o "llame al cliente". Desde aqui
 // tambien se edita y se borra la tarea (RLS decide quien puede: creador,
 // asignado o admin/owner para editar; creador o admin/owner para borrar).
-export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, onNotaAgregada, onGuardar, onBorrar }) {
+export default function TareaDetalle({
+  tarea,
+  usuarios,
+  contextoCliente,
+  puedeEditar,
+  onClose,
+  onNotaAgregada,
+  onGuardar,
+  onBorrar,
+}) {
   const { notas, loading, agregarNota } = useTareaNotas(tarea.id)
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -92,6 +109,26 @@ export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, on
                 {tarea.descripcion && <p className="text-sm text-surface-text/60 mt-1">{tarea.descripcion}</p>}
                 {tarea.fecha_limite && (
                   <p className={ETIQUETA + ' mt-1.5'}>📅 {formatearFechaLegible(tarea.fecha_limite)}</p>
+                )}
+                {contextoCliente?.cliente && (
+                  <div className="mt-3 rounded-xl bg-surface-text/5 px-3 py-2.5 text-sm space-y-1.5">
+                    <p className="font-semibold">
+                      {[contextoCliente.cliente.first_name, contextoCliente.cliente.last_name].filter(Boolean).join(' ')}
+                      {contextoCliente.cliente.phone && (
+                        <span className="font-normal text-surface-text/70"> · {contextoCliente.cliente.phone}</span>
+                      )}
+                    </p>
+                    <BotonesContacto telefono={contextoCliente.cliente.phone} />
+                    {contextoCliente.reparacion && (
+                      <p className="text-surface-text/70">
+                        {[contextoCliente.reparacion.scooter_brand_snapshot, contextoCliente.reparacion.scooter_model_snapshot]
+                          .filter(Boolean)
+                          .join(' ') || 'Patinete sin marca/modelo'}
+                        {' · '}
+                        {ESTADO_REPARACION[contextoCliente.reparacion.status] ?? contextoCliente.reparacion.status}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">

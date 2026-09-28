@@ -434,6 +434,7 @@ export default function Tareas() {
         <TareaDetalle
           tarea={tareaDetalle}
           usuarios={usuarios}
+          contextoCliente={tareaDetalle.client_id ? reparacionesPorCliente.get(tareaDetalle.client_id) : null}
           puedeEditar={puedeCrear}
           onClose={() => setTareaDetalle(null)}
           onNotaAgregada={recargarContadorNotas}

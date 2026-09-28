@@ -1,4 +1,5 @@
 import { CameraIcon, CheckIcon, SparkleIcon } from './icons'
+import BotonesContacto from './BotonesContacto'
 
 const PRIORIDAD_LABEL = {
   urgente: 'Urgente',
@@ -119,10 +120,13 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
         {contexto && (
           <div className="mt-2 pt-2 border-t border-surface-text/10 text-xs text-surface-text/60 space-y-0.5">
             {contexto.cliente && (
-              <p className="font-medium text-surface-text/80">
-                {[contexto.cliente.first_name, contexto.cliente.last_name].filter(Boolean).join(' ')}
-                {contexto.cliente.phone && ` · 📱 ${contexto.cliente.phone}`}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                <p className="font-medium text-surface-text/80">
+                  {[contexto.cliente.first_name, contexto.cliente.last_name].filter(Boolean).join(' ')}
+                  {contexto.cliente.phone && ` · ${contexto.cliente.phone}`}
+                </p>
+                <BotonesContacto telefono={contexto.cliente.phone} />
+              </div>
             )}
             {contexto.reparacion && (
               <p>
