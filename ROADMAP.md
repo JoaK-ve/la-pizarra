@@ -91,7 +91,7 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 - [x] Botones de un toque para llamar y escribir por WhatsApp desde tarjetas de tarea y de reparación.
 - [x] Sección "Necesita atención" con los umbrales del propio taller (`alert_days_terminado`, `alert_days_stalled`), creando la tarea con un toque ("Avisar a X: patinete terminado hace 9 días").
 - [x] Plantillas de tarea ("Avisar que está listo", "Pedir repuesto"…) y cierre automático al pasar la reparación a `entregado`.
-- [ ] Enlaces cruzados con WheelOS (falta saber el patrón de URL de una reparación).
+- [x] Enlaces cruzados con WheelOS: NO es posible hoy -- WheelOS abre cada reparación en una modal, sin URL propia (y La Pizarra solo lee, no toca WheelOS). Se resolvió mostrando el número de orden (p. ej. `8PSVB2`, toque para copiar) en tarjetas, detalle, "Necesitan atención" y correo. Mejora futura que depende de WheelOS: que abra la modal con un parámetro (`?reparacion=<id>`) y entonces añadir el botón "Abrir en WheelOS".
 
 **Fase D — Ajustes por persona y multi-taller**
 - [ ] Pantalla de ajustes: canales activos, hora del resumen.

@@ -1,5 +1,6 @@
 import { PlusIcon } from './icons'
 import BotonesContacto from './BotonesContacto'
+import NumeroOrden from './NumeroOrden'
 
 const ESTADO_LABEL = {
   pendiente: 'Pendiente',
@@ -25,6 +26,7 @@ export default function RepairCard({ reparacion, tareasAbiertas = 0, puedeCrear,
         {reparacion.client_problem && <p className="text-sm text-surface-text/70 mt-1">{reparacion.client_problem}</p>}
 
         <div className="flex flex-wrap items-center gap-1.5 mt-2 font-mono text-[11px] uppercase tracking-wide">
+          <NumeroOrden numero={reparacion.order_num} />
           {patin && <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">{patin}</span>}
           <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">
             {ESTADO_LABEL[reparacion.status] ?? reparacion.status}

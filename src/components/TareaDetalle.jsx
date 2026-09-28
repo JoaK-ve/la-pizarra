@@ -3,6 +3,7 @@ import { useTareaNotas } from '../hooks/useTareaNotas'
 import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA, soloFecha } from '../utils/fechas'
 import { CloseIcon, PencilIcon, TrashIcon } from './icons'
 import BotonesContacto from './BotonesContacto'
+import NumeroOrden from './NumeroOrden'
 import { reparacionDeTarea } from '../utils/contexto'
 
 const ESTADO_REPARACION = {
@@ -127,6 +128,12 @@ export default function TareaDetalle({
                           'Patinete sin marca/modelo'}
                         {' · '}
                         {ESTADO_REPARACION[reparacion.status] ?? reparacion.status}
+                        {reparacion.order_num && (
+                          <>
+                            {' · '}
+                            <NumeroOrden numero={reparacion.order_num} />
+                          </>
+                        )}
                       </p>
                     )}
                     {tarea.repair_id && reparacion?.status === 'entregado' && tarea.estado !== 'hecho' && (

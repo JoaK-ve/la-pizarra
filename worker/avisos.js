@@ -57,7 +57,7 @@ async function cargarContexto(supabase, tareas) {
     clienteIds.length
       ? supabase
           .from('repairs')
-          .select('client_id, scooter_brand_snapshot, scooter_model_snapshot, status, created_at')
+          .select('client_id, order_num, scooter_brand_snapshot, scooter_model_snapshot, status, created_at')
           .in('client_id', clienteIds)
           .neq('status', 'entregado')
           .order('created_at', { ascending: false })
@@ -71,7 +71,7 @@ async function cargarContexto(supabase, tareas) {
     reparacionIds.length
       ? supabase
           .from('repairs')
-          .select('id, client_id, scooter_brand_snapshot, scooter_model_snapshot, status, created_at')
+          .select('id, client_id, order_num, scooter_brand_snapshot, scooter_model_snapshot, status, created_at')
           .in('id', reparacionIds)
       : { data: [] },
   ])
@@ -109,7 +109,12 @@ function tarjetaDeTarea(tarea, ctx) {
       ? { nombre: [cliente.first_name, cliente.last_name].filter(Boolean).join(' '), telefono: cliente.phone }
       : null,
     reparacion: reparacion
-      ? { marca: reparacion.scooter_brand_snapshot, modelo: reparacion.scooter_model_snapshot, estado: reparacion.status }
+      ? {
+          marca: reparacion.scooter_brand_snapshot,
+          modelo: reparacion.scooter_model_snapshot,
+          estado: reparacion.status,
+          orden: reparacion.order_num,
+        }
       : null,
     ultimaNota: nota ? { texto: nota.texto, autor: ctx.usuarios.get(nota.autor_id)?.full_name?.split(' ')[0] ?? null } : null,
     creadaPor: creador?.full_name ?? null,

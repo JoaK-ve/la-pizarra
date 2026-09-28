@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import BotonesContacto from './BotonesContacto'
+import NumeroOrden from './NumeroOrden'
 import { PlusIcon } from './icons'
 
 const VISIBLES_AL_INICIO = 5
@@ -45,7 +46,10 @@ export default function NecesitaAtencion({ items, puedeCrear, onCrearTarea }) {
                 >
                   {TEXTO_TIPO[tipo](dias)}
                 </p>
-                <BotonesContacto telefono={reparacion.client_phone_snapshot} className="mt-2" />
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <NumeroOrden numero={reparacion.order_num} />
+                  <BotonesContacto telefono={reparacion.client_phone_snapshot} />
+                </div>
               </div>
               {puedeCrear && (
                 <button

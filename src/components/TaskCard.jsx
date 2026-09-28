@@ -1,5 +1,6 @@
 import { CameraIcon, CheckIcon, SparkleIcon } from './icons'
 import BotonesContacto from './BotonesContacto'
+import NumeroOrden from './NumeroOrden'
 import { reparacionDeTarea } from '../utils/contexto'
 
 const PRIORIDAD_LABEL = {
@@ -147,6 +148,12 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
                   'Patín sin marca/modelo registrado'}
                 {' · '}
                 {ESTADO_REPARACION_LABEL[reparacion.status] ?? reparacion.status}
+                {reparacion.order_num && (
+                  <>
+                    {' · '}
+                    <NumeroOrden numero={reparacion.order_num} />
+                  </>
+                )}
               </p>
             )}
           </div>
