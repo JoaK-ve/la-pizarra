@@ -111,10 +111,29 @@ El usuario fue generando el kit de marca de La Pizarra (logo, icono, variantes d
 
 Los demás archivos limpios (`05_Logo_Fondo_Claro`, `07_Version_Compacta_Solo_Simbolo`) quedan guardados como material de marca sin uso técnico inmediato -- no van en los correos ni en el header, que usan el logo del TALLER, no el de La Pizarra. Dos de los archivos (`08`, `09`) son solo hojas de referencia del kit completo (con rótulos dentro de la imagen), no assets individuales -- de las 12 piezas que el "09" muestra en su índice, solo 5 llegaron como archivos reales.
 
+## Hecho (2026-09-29, v0.15.5) — ícono de La Pizarra junto a su nombre en la cabecera
+
+El logo del taller (grande) y el nombre "La Pizarra" ya convivían en la cabecera, pero "La Pizarra" no tenía su propio símbolo. Se agregó el ícono chico (favicon de 64x64, a 24px) pegado al texto: **[logo del taller]** — **[ícono] La Pizarra** / taller · Hola, nombre. Sin archivo nuevo, reusa el favicon ya existente.
+
+## Próximo — mockup de dashboard (2026-09-29), a retomar mañana
+
+El usuario mostró un mockup completo de dashboard (sidebar, buscador, campanita con notificaciones, tarjetas de números, panel de "Proyectos", calendario de hoy, accesos rápidos). Le encantó la parte visual. Se separó en dos grupos:
+
+**Aprobado en concepto, encaja con los datos reales — construir esto primero:**
+- Buscador de tareas por título/cliente (cliente, sobre datos ya cargados).
+- Campanita con el número real de vencidas+hoy (mismo dato de `Recordatorios.jsx`) que abre esa lista al tocar, en vez del banner rojo fijo de arriba.
+- Menú de perfil unificado (avatar/iniciales + nombre + taller, con Ajustes y Cerrar sesión adentro) — hoy son botones sueltos en la cabecera.
+- Tarjetas de números REALES (ej. "N pendientes", "N vencidas", "N hechas esta semana") en vez de las 4 categorías inventadas del mockup (el mockup tenía "En progreso"/"En revisión" que no existen en nuestro modelo).
+
+**NO se construye sin antes decidirlo aparte — no encaja con el alcance actual:**
+- **"Proyectos" multi-negocio** (el mockup mostraba TG Patinetes, Semilla, CetrerOS, OídoChef, Marketing, Joak Training como "proyectos" separados): esto convertiría La Pizarra en un gestor de TODOS los negocios/proyectos del usuario, no solo del taller. Es una decisión de producto grande, no un ajuste visual — pendiente de conversación aparte.
+- Estados intermedios de tarea ("en progreso"/"en revisión") — ya se había decidido a propósito que el estado es binario (pendiente/hecha); el mockup asume 4 estados.
+- La foto de fondo del encabezado y la barra lateral fija (sidebar) son cambios de layout más grandes — se consideran aparte, no en este primer paso.
+
 ## En curso
 
 - **Verificación real por el usuario de las fases B, C y D** (ver el estado al cierre de arriba).
-- **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09); (3) tras confirmar todo, borrar las columnas `tareas.notificado_previo_at/notificado_vencimiento_at`, que ya no se usan.
+- **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09).
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
 - **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.
 
