@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTareaNotas } from '../hooks/useTareaNotas'
 import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA, soloFecha } from '../utils/fechas'
-import { CloseIcon, PencilIcon } from './icons'
+import { CloseIcon, PencilIcon, TrashIcon } from './icons'
 
 const PRIORIDADES = [
   { value: 'urgente', label: 'Urgente' },
@@ -32,6 +32,9 @@ export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, on
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [editando, setEditando] = useState(false)
+  const [confirmandoBorrado, setConfirmandoBorrado] = useState(false)
+  const [borrando, setBorrando] = useState(false)
+  const [errorBorrado, setErrorBorrado] = useState(null)
 
   async function handleAgregar(e) {
     e.preventDefault()
@@ -55,6 +58,19 @@ export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, on
     const resultado = await onBorrar(tarea.id)
     if (resultado.ok) onClose()
     return resultado
+  }
+
+  // Borrado directo desde el detalle (icono de papelera), sin pasar por el
+  // modo edicion.
+  async function confirmarBorrado() {
+    setBorrando(true)
+    setErrorBorrado(null)
+    const resultado = await borrar()
+    setBorrando(false)
+    if (!resultado.ok) {
+      setErrorBorrado(resultado.message)
+      setConfirmandoBorrado(false)
+    }
   }
 
   return (
@@ -82,6 +98,17 @@ export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, on
                 {puedeEditar && (
                   <button
                     type="button"
+                    onClick={() => setConfirmandoBorrado(true)}
+                    className="text-surface-text/50 hover:text-priority-urgente"
+                    aria-label="Borrar tarea"
+                    title="Borrar tarea"
+                  >
+                    <TrashIcon size={19} />
+                  </button>
+                )}
+                {puedeEditar && (
+                  <button
+                    type="button"
                     onClick={() => setEditando(true)}
                     className="text-surface-text/50 hover:text-surface-text"
                     aria-label="Editar tarea"
@@ -95,6 +122,31 @@ export default function TareaDetalle({ tarea, usuarios, puedeEditar, onClose, on
                 </button>
               </div>
             </div>
+
+            {confirmandoBorrado && (
+              <div className="mt-3 shrink-0 rounded-xl border border-priority-urgente/40 bg-priority-urgente/10 px-3 py-2.5 text-sm">
+                <p className="text-surface-text">¿Borrar esta tarea con todas sus notas? No se puede deshacer.</p>
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmandoBorrado(false)}
+                    disabled={borrando}
+                    className="flex-1 rounded-lg border border-surface-text/20 py-1.5 font-semibold"
+                  >
+                    No, conservar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmarBorrado}
+                    disabled={borrando}
+                    className="flex-1 rounded-lg bg-priority-urgente text-text py-1.5 font-semibold disabled:opacity-50"
+                  >
+                    {borrando ? 'Borrando…' : 'Sí, borrar'}
+                  </button>
+                </div>
+              </div>
+            )}
+            {errorBorrado && <p className="mt-3 shrink-0 text-sm text-priority-urgente">{errorBorrado}</p>}
 
             <div className="mt-4 pt-3 border-t border-surface-text/10 flex-1 overflow-y-auto space-y-3">
               <p className={ETIQUETA}>Bitácora</p>
