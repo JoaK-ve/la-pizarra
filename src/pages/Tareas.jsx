@@ -82,6 +82,14 @@ export default function Tareas() {
 
   const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios])
 
+  // Cuantas tareas pendientes tiene cada reparacion (por `repair_id`), para
+  // avisar en la tarjeta de la reparacion y no duplicar tareas sin querer.
+  const tareasAbiertasPorReparacion = useMemo(() => {
+    const cuenta = new Map()
+    for (const t of pendientes) if (t.repair_id) cuenta.set(t.repair_id, (cuenta.get(t.repair_id) ?? 0) + 1)
+    return cuenta
+  }, [pendientes])
+
   // Solo owner/admin/technician/secretary pueden crear tareas (misma regla
   // que la politica de RLS de insert) -- viewer no ve el boton.
   const puedeCrear = profile?.role && profile.role !== 'viewer'
@@ -132,6 +140,7 @@ export default function Tareas() {
     const patin = [reparacion.scooter_brand_snapshot, reparacion.scooter_model_snapshot].filter(Boolean).join(' ')
     setPrefillModal({
       clientId: reparacion.client_id,
+      repairId: reparacion.id,
       clienteRef: reparacion.client_phone_snapshot,
       clienteNombre: reparacion.client_name_snapshot,
       titulo: [patin, reparacion.client_problem].filter(Boolean).join(' — '),
@@ -378,6 +387,7 @@ export default function Tareas() {
               <RepairCard
                 key={reparacion.id}
                 reparacion={reparacion}
+                tareasAbiertas={tareasAbiertasPorReparacion.get(reparacion.id) ?? 0}
                 puedeCrear={puedeCrear}
                 onCrearTarea={abrirTareaDesdeReparacion}
               />

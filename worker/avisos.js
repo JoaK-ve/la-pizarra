@@ -28,7 +28,7 @@ async function registrarAviso(supabase, fila) {
 async function cargarTareas(supabase, hasta, soloUsuarioId) {
   let consulta = supabase
     .from('tareas')
-    .select('id, workshop_id, titulo, descripcion, prioridad, fecha_limite, asignado_a, creado_por, client_id')
+    .select('id, workshop_id, titulo, descripcion, prioridad, fecha_limite, asignado_a, creado_por, client_id, repair_id')
     .eq('estado', 'pendiente')
     .not('fecha_limite', 'is', null)
     .lte('fecha_limite', hasta)
@@ -45,9 +45,10 @@ async function cargarContexto(supabase, tareas) {
   const usuarioIds = unicos(tareas.flatMap((t) => [t.asignado_a, t.creado_por]))
   const tallerIds = unicos(tareas.map((t) => t.workshop_id))
   const clienteIds = unicos(tareas.map((t) => t.client_id))
+  const reparacionIds = unicos(tareas.map((t) => t.repair_id))
   const tareaIds = tareas.map((t) => t.id)
 
-  const [usuarios, talleres, clientes, reparaciones, notas] = await Promise.all([
+  const [usuarios, talleres, clientes, reparaciones, notas, enlazadas] = await Promise.all([
     supabase.from('users').select('id, workshop_id, full_name, email, active').in('id', usuarioIds),
     supabase.from('workshops').select('id, fantasy_name, contact_email, phone, address, website').in('id', tallerIds),
     clienteIds.length
@@ -66,9 +67,16 @@ async function cargarContexto(supabase, tareas) {
       .select('tarea_id, texto, autor_id, created_at')
       .in('tarea_id', tareaIds)
       .order('created_at', { ascending: false }),
+    // Reparaciones enlazadas por repair_id (aunque ya esten entregadas).
+    reparacionIds.length
+      ? supabase
+          .from('repairs')
+          .select('id, client_id, scooter_brand_snapshot, scooter_model_snapshot, status, created_at')
+          .in('id', reparacionIds)
+      : { data: [] },
   ])
 
-  const errores = [usuarios, talleres, clientes, reparaciones, notas].map((r) => r.error?.message).filter(Boolean)
+  const errores = [usuarios, talleres, clientes, reparaciones, notas, enlazadas].map((r) => r.error?.message).filter(Boolean)
   if (errores.length) throw new Error(`Error cargando datos del taller: ${errores.join(' | ')}`)
 
   return {
@@ -76,13 +84,18 @@ async function cargarContexto(supabase, tareas) {
     talleres: new Map(talleres.data.map((t) => [t.id, t])),
     clientes: new Map(clientes.data.map((c) => [c.id, c])),
     reparacionPorCliente: primeroPor(reparaciones.data, 'client_id'),
+    reparacionPorId: new Map(enlazadas.data.map((r) => [r.id, r])),
     ultimaNotaPorTarea: primeroPor(notas.data, 'tarea_id'),
   }
 }
 
 function tarjetaDeTarea(tarea, ctx) {
   const cliente = tarea.client_id ? ctx.clientes.get(tarea.client_id) : null
-  const reparacion = tarea.client_id ? ctx.reparacionPorCliente.get(tarea.client_id) : null
+  // La reparacion exacta si la tarea esta enlazada; si no, la activa mas
+  // reciente del cliente (igual que en la app: utils/contexto.js).
+  const reparacion =
+    (tarea.repair_id && ctx.reparacionPorId.get(tarea.repair_id)) ||
+    (tarea.client_id ? ctx.reparacionPorCliente.get(tarea.client_id) : null)
   const nota = ctx.ultimaNotaPorTarea.get(tarea.id)
   const creador = tarea.creado_por && tarea.creado_por !== tarea.asignado_a ? ctx.usuarios.get(tarea.creado_por) : null
 
@@ -340,7 +353,7 @@ export async function avisoDePrueba(supabase, env, persona) {
 export async function avisoDeAsignacion(supabase, env, asignador, tareaId) {
   const { data: tarea } = await supabase
     .from('tareas')
-    .select('id, workshop_id, titulo, descripcion, prioridad, estado, fecha_limite, asignado_a, creado_por, client_id')
+    .select('id, workshop_id, titulo, descripcion, prioridad, estado, fecha_limite, asignado_a, creado_por, client_id, repair_id')
     .eq('id', tareaId)
     .maybeSingle()
 

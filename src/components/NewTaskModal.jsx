@@ -83,6 +83,7 @@ export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefil
       prioridad,
       clientId: prefill?.clientId ?? null,
       clienteRef: prefill?.clienteRef ?? null,
+      repairId: prefill?.repairId ?? null,
       fechaLimite: fechaLimite || null,
     })
     setEnviando(false)

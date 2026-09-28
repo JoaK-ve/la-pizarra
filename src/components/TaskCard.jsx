@@ -1,5 +1,6 @@
 import { CameraIcon, CheckIcon, SparkleIcon } from './icons'
 import BotonesContacto from './BotonesContacto'
+import { reparacionDeTarea } from '../utils/contexto'
 
 const PRIORIDAD_LABEL = {
   urgente: 'Urgente',
@@ -19,6 +20,7 @@ const ESTADO_REPARACION_LABEL = {
   pendiente: 'Pendiente',
   en_progreso: 'En progreso',
   terminado: 'Terminado',
+  entregado: 'Entregado',
 }
 
 // Tratamiento del contenedor por prioridad -- jerarquia por intensidad
@@ -40,6 +42,7 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
   // viene de WheelOS via useReparacionesClientes. Solo existe cuando la
   // tarea tiene client_id (hoy, sobre todo las que crea La Secre).
   const contexto = tarea.client_id ? reparacionesPorCliente?.get(tarea.client_id) : null
+  const reparacion = reparacionDeTarea(contexto, tarea)
   const conPunto = tarea.prioridad === 'normal' || tarea.prioridad === 'baja'
 
   return (
@@ -128,13 +131,12 @@ export default function TaskCard({ tarea, usuariosPorId, reparacionesPorCliente,
                 <BotonesContacto telefono={contexto.cliente.phone} />
               </div>
             )}
-            {contexto.reparacion && (
+            {reparacion && (
               <p>
-                {[contexto.reparacion.scooter_brand_snapshot, contexto.reparacion.scooter_model_snapshot]
-                  .filter(Boolean)
-                  .join(' ') || 'Patín sin marca/modelo registrado'}
+                {[reparacion.scooter_brand_snapshot, reparacion.scooter_model_snapshot].filter(Boolean).join(' ') ||
+                  'Patín sin marca/modelo registrado'}
                 {' · '}
-                {ESTADO_REPARACION_LABEL[contexto.reparacion.status] ?? contexto.reparacion.status}
+                {ESTADO_REPARACION_LABEL[reparacion.status] ?? reparacion.status}
               </p>
             )}
           </div>

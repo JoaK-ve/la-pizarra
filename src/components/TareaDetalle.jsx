@@ -3,6 +3,7 @@ import { useTareaNotas } from '../hooks/useTareaNotas'
 import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA, soloFecha } from '../utils/fechas'
 import { CloseIcon, PencilIcon, TrashIcon } from './icons'
 import BotonesContacto from './BotonesContacto'
+import { reparacionDeTarea } from '../utils/contexto'
 
 const ESTADO_REPARACION = {
   pendiente: 'Pendiente',
@@ -46,6 +47,7 @@ export default function TareaDetalle({
   onBorrar,
 }) {
   const { notas, loading, agregarNota } = useTareaNotas(tarea.id)
+  const reparacion = reparacionDeTarea(contextoCliente, tarea)
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [editando, setEditando] = useState(false)
@@ -119,13 +121,12 @@ export default function TareaDetalle({
                       )}
                     </p>
                     <BotonesContacto telefono={contextoCliente.cliente.phone} />
-                    {contextoCliente.reparacion && (
+                    {reparacion && (
                       <p className="text-surface-text/70">
-                        {[contextoCliente.reparacion.scooter_brand_snapshot, contextoCliente.reparacion.scooter_model_snapshot]
-                          .filter(Boolean)
-                          .join(' ') || 'Patinete sin marca/modelo'}
+                        {[reparacion.scooter_brand_snapshot, reparacion.scooter_model_snapshot].filter(Boolean).join(' ') ||
+                          'Patinete sin marca/modelo'}
                         {' · '}
-                        {ESTADO_REPARACION[contextoCliente.reparacion.status] ?? contextoCliente.reparacion.status}
+                        {ESTADO_REPARACION[reparacion.status] ?? reparacion.status}
                       </p>
                     )}
                   </div>

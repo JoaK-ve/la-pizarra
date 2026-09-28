@@ -7,7 +7,7 @@ const ESTADO_LABEL = {
   terminado: 'Terminado',
 }
 
-export default function RepairCard({ reparacion, puedeCrear, onCrearTarea }) {
+export default function RepairCard({ reparacion, tareasAbiertas = 0, puedeCrear, onCrearTarea }) {
   const patin = [reparacion.scooter_brand_snapshot, reparacion.scooter_model_snapshot].filter(Boolean).join(' ')
 
   return (
@@ -29,6 +29,11 @@ export default function RepairCard({ reparacion, puedeCrear, onCrearTarea }) {
           <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">
             {ESTADO_LABEL[reparacion.status] ?? reparacion.status}
           </span>
+          {tareasAbiertas > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand">
+              {tareasAbiertas === 1 ? '1 tarea abierta' : `${tareasAbiertas} tareas abiertas`}
+            </span>
+          )}
           {reparacion.reception_date && (
             <span className="px-2 py-0.5 rounded-full bg-surface-text/10 text-surface-text/70">
               Recibido {new Date(reparacion.reception_date).toLocaleDateString('es-ES')}
