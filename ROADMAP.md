@@ -97,11 +97,14 @@ Base del análisis: datos reales (10 tareas en 5 semanas, todas manuales y de co
 - [ ] Pantalla de ajustes: canales activos, hora del resumen.
 - [ ] Mostrar el nombre del taller en la cabecera; nada fijo de TG Patinetes en código ni plantillas (hay 2 talleres en WheelOS: TG Patinetes y WheelOS Demo).
 
-**Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). Pendientes de respuesta: si `wheelos.es` ya está verificado en Resend, y el patrón de URL de una reparación en WheelOS.
+**Decisiones del usuario (2026-09-28):** el plan completo está aprobado ("esto me parece perfecto"); se va resolviendo punto por punto. Correo: resumen diario por persona (recomendación aceptada por defecto — confirmar si además quiere aviso inmediato al asignar). `wheelos.es` ya estaba verificado en Resend (respondido). Sigue pendiente de respuesta: el patrón de URL de una reparación en WheelOS (para la fase C).
+
+**Estado al cierre del 2026-09-28 (mañana):** fase A hecha y verificada (v0.7.0 → v0.7.1). v0.7.1 puso la cabecera del correo en oscuro porque el logo del taller tiene letras blancas (pensado para fondo oscuro) y no se veía sobre blanco; falta que el usuario confirme que ya se ve. Siguiente: **fase B**, empezando por editar y borrar/archivar tareas (con validación del año en las fechas), luego alta rápida y pantalla "Mi día".
 
 ## En curso
 
-- **Fase A del plan de mejoras.**
+- **Fase B del plan de mejoras** (siguiente en arrancar, esta tarde): editar/borrar tareas → alta rápida → "Mi día" → aviso al asignar → errores visibles.
+- **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09); (3) tras confirmar todo, borrar las columnas `tareas.notificado_previo_at/notificado_vencimiento_at`, que ya no se usan.
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
 - **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.
 
