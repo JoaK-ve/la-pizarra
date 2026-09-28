@@ -219,15 +219,17 @@ export async function enviarPushes(supabase, env) {
   const ctx = await cargarContexto(supabase, candidatas)
   const { data: previos } = await supabase
     .from('avisos_enviados')
-    .select('tarea_id, user_id, tipo')
+    .select('tarea_id, user_id, tipo, fecha_limite')
     .eq('canal', 'push')
     .eq('estado', 'enviado')
     .in('tarea_id', candidatas.map((t) => t.id))
-  const yaAvisados = new Set((previos ?? []).map((a) => `${a.tarea_id}|${a.user_id}|${a.tipo}`))
+  // La fecha forma parte de la clave: si una tarea avisada se aplaza a otra
+  // fecha, ese aviso es nuevo y si debe volver a mandarse.
+  const yaAvisados = new Set((previos ?? []).map((a) => `${a.tarea_id}|${a.user_id}|${a.tipo}|${a.fecha_limite}`))
 
   for (const tarea of candidatas) {
     const tipo = tarea.fecha_limite === hoy ? 'vencimiento' : 'previo'
-    if (yaAvisados.has(`${tarea.id}|${tarea.asignado_a}|${tipo}`)) continue
+    if (yaAvisados.has(`${tarea.id}|${tarea.asignado_a}|${tipo}|${tarea.fecha_limite}`)) continue
 
     const tarjeta = tarjetaDeTarea(tarea, ctx)
     const taller = ctx.talleres.get(tarea.workshop_id)
@@ -245,6 +247,7 @@ export async function enviarPushes(supabase, env) {
         workshop_id: tarea.workshop_id,
         tarea_id: tarea.id,
         user_id: tarea.asignado_a,
+        fecha_limite: tarea.fecha_limite,
         canal: 'push',
         tipo,
         estado: resultado.enviados > 0 ? 'enviado' : 'fallido',

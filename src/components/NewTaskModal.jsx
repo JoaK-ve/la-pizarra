@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CloseIcon } from './icons'
-import { errorDeFecha, FECHA_MAXIMA, FECHA_MINIMA } from '../utils/fechas'
+import { errorDeFecha, fechaRelativa, FECHA_MAXIMA, FECHA_MINIMA } from '../utils/fechas'
 
 // "nuevo" no se ofrece aca a proposito: ese valor de prioridad es el que usa
 // La Secre para marcar "llegó hoy/reciente" en tareas que ella genera. Las
@@ -13,33 +13,60 @@ const PRIORIDADES = [
   { value: 'baja', label: 'Baja' },
 ]
 
-const CONTEXTOS = [
-  { value: 'taller', label: 'Taller' },
-  { value: 'personal', label: 'Personal' },
-  { value: 'familia', label: 'Familia' },
+const CAMPO =
+  'w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand'
+const ETIQUETA = 'font-mono text-xs text-surface-text-muted uppercase tracking-wide'
+
+// Atajos de fecha: lo normal en un taller es "hoy", "mañana" o sin fecha;
+// solo "Otra" abre el selector de fecha.
+const ATAJOS = [
+  { modo: 'ninguna', etiqueta: 'Sin fecha' },
+  { modo: 'hoy', etiqueta: 'Hoy' },
+  { modo: 'manana', etiqueta: 'Mañana' },
+  { modo: 'otra', etiqueta: 'Otra…' },
 ]
 
-// `prefill` (opcional) llega cuando el modal se abre desde "Crear tarea" en
+function modoInicial(fecha) {
+  if (!fecha) return 'ninguna'
+  if (fecha === fechaRelativa(0)) return 'hoy'
+  if (fecha === fechaRelativa(1)) return 'manana'
+  return 'otra'
+}
+
+// `prefill` (opcional) llega cuando el modal se abre desde "Generar tarea" en
 // una reparacion activa (ver Tareas.jsx / RepairCard.jsx): trae el cliente
 // ya vinculado y un titulo sugerido. El cliente no se puede cambiar desde
 // aca a proposito -- si la tarea es sobre otro cliente, se crea sin
 // prefill desde el boton normal de "Nueva tarea". `prefill.fecha` (
-// "YYYY-MM-DD") llega cuando se abre desde el Calendario -- ver
-// Calendario.jsx / Tareas.jsx.
-export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
+// "YYYY-MM-DD") llega cuando se abre desde el Calendario.
+//
+// Alta rapida: titulo + fecha + persona (por defecto, quien la crea) y un
+// interruptor de "Urgente". Descripcion y las demas prioridades van
+// plegadas en "Mas opciones". El contexto (taller/personal/familia) ya no se
+// pregunta: el 100% de las tareas reales eran "taller".
+export default function NewTaskModal({ usuarios, miId, onClose, onCreate, prefill }) {
   const [titulo, setTitulo] = useState(prefill?.titulo ?? '')
   const [descripcion, setDescripcion] = useState('')
-  const [contexto, setContexto] = useState('taller')
-  const [asignadoA, setAsignadoA] = useState('')
+  const [asignadoA, setAsignadoA] = useState(usuarios.some((u) => u.id === miId) ? miId : '')
   const [prioridad, setPrioridad] = useState('normal')
-  const [fechaLimite, setFechaLimite] = useState(prefill?.fecha ?? '')
+  const [modoFecha, setModoFecha] = useState(modoInicial(prefill?.fecha))
+  const [fechaOtra, setFechaOtra] = useState(modoInicial(prefill?.fecha) === 'otra' ? prefill.fecha : '')
+  const [masOpciones, setMasOpciones] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
+
+  const fechaLimite = { ninguna: '', hoy: fechaRelativa(0), manana: fechaRelativa(1), otra: fechaOtra }[modoFecha]
+  // Yo primero en la lista, para que lo comun sea un toque.
+  const personas = [...usuarios].sort((a, b) => (b.id === miId) - (a.id === miId))
 
   async function handleSubmit(e) {
     e.preventDefault()
     if (!titulo.trim()) return
 
+    if (modoFecha === 'otra' && !fechaOtra) {
+      setError('Elige una fecha o cambia a "Sin fecha".')
+      return
+    }
     const problemaFecha = errorDeFecha(fechaLimite)
     if (problemaFecha) {
       setError(problemaFecha)
@@ -51,7 +78,7 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
     const resultado = await onCreate({
       titulo: titulo.trim(),
       descripcion: descripcion.trim(),
-      contexto,
+      contexto: 'taller',
       asignadoA,
       prioridad,
       clientId: prefill?.clientId ?? null,
@@ -71,11 +98,11 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:max-w-md bg-surface text-surface-text rounded-t-3xl sm:rounded-xl p-6 shadow-2xl space-y-4"
+        className="w-full sm:max-w-md bg-surface text-surface-text rounded-t-3xl sm:rounded-xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-lg">Nueva tarea</h2>
-          <button type="button" onClick={onClose} className="text-surface-text/50 hover:text-surface-text">
+          <button type="button" onClick={onClose} className="text-surface-text/50 hover:text-surface-text" aria-label="Cerrar">
             <CloseIcon size={20} />
           </button>
         </div>
@@ -87,87 +114,108 @@ export default function NewTaskModal({ usuarios, onClose, onCreate, prefill }) {
         )}
 
         <div>
-          <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Título</label>
+          <label className={ETIQUETA}>¿Qué hay que hacer?</label>
           <input
             autoFocus
             required
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"
+            className={CAMPO}
             placeholder="ej. Llamar a Recambios Alcoy"
           />
         </div>
 
         <div>
-          <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Descripción (opcional)</label>
-          <textarea
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            rows={2}
-            className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Contexto</label>
-            <select
-              value={contexto}
-              onChange={(e) => setContexto(e.target.value)}
-              className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"
-            >
-              {CONTEXTOS.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Prioridad</label>
-            <select
-              value={prioridad}
-              onChange={(e) => setPrioridad(e.target.value)}
-              className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"
-            >
-              {PRIORIDADES.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Fecha (opcional)</label>
-          <input
-            type="date"
-            min={FECHA_MINIMA}
-            max={FECHA_MAXIMA}
-            value={fechaLimite}
-            onChange={(e) => setFechaLimite(e.target.value)}
-            className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"
-          />
-          <p className="text-xs text-surface-text-muted mt-1">Para que aparezca en el Calendario -- deadline o cita.</p>
-        </div>
-
-        <div>
-          <label className="font-mono text-xs text-surface-text-muted uppercase tracking-wide">Asignar a (opcional)</label>
-          <select
-            value={asignadoA}
-            onChange={(e) => setAsignadoA(e.target.value)}
-            className="w-full mt-1 rounded-lg border border-surface-text/15 bg-white text-surface-text px-3 py-2 outline-none focus:border-brand"
-          >
-            <option value="">Sin asignar (visible a todos)</option>
-            {usuarios.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.full_name}
-              </option>
+          <label className={ETIQUETA}>¿Para cuándo?</label>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {ATAJOS.map((a) => (
+              <button
+                key={a.modo}
+                type="button"
+                onClick={() => setModoFecha(a.modo)}
+                className={
+                  'px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ' +
+                  (modoFecha === a.modo
+                    ? 'bg-brand text-brand-contrast border-brand'
+                    : 'border-surface-text/20 text-surface-text/70 hover:border-surface-text/40')
+                }
+              >
+                {a.etiqueta}
+              </button>
             ))}
-          </select>
+          </div>
+          {modoFecha === 'otra' && (
+            <input
+              type="date"
+              min={FECHA_MINIMA}
+              max={FECHA_MAXIMA}
+              value={fechaOtra}
+              onChange={(e) => setFechaOtra(e.target.value)}
+              className={CAMPO}
+              aria-label="Fecha límite"
+            />
+          )}
         </div>
+
+        <div className="flex items-end gap-3">
+          <div className="flex-1 min-w-0">
+            <label className={ETIQUETA}>Asignar a</label>
+            <select value={asignadoA} onChange={(e) => setAsignadoA(e.target.value)} className={CAMPO}>
+              <option value="">Sin asignar (nadie recibe avisos)</option>
+              {personas.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.full_name}
+                  {u.id === miId ? ' (yo)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPrioridad(prioridad === 'urgente' ? 'normal' : 'urgente')}
+            aria-pressed={prioridad === 'urgente'}
+            className={
+              'shrink-0 mb-px px-3.5 py-2 rounded-full text-sm font-semibold border transition-colors ' +
+              (prioridad === 'urgente'
+                ? 'bg-priority-urgente text-text border-priority-urgente'
+                : 'border-surface-text/20 text-surface-text/70 hover:border-surface-text/40')
+            }
+          >
+            Urgente
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMasOpciones(!masOpciones)}
+          className="text-sm text-surface-text/60 hover:text-surface-text underline underline-offset-2"
+        >
+          {masOpciones ? 'Menos opciones' : 'Más opciones (descripción, otras prioridades)'}
+        </button>
+
+        {masOpciones && (
+          <div className="space-y-4">
+            <div>
+              <label className={ETIQUETA}>Descripción (opcional)</label>
+              <textarea
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                rows={2}
+                className={CAMPO + ' resize-none'}
+              />
+            </div>
+            <div>
+              <label className={ETIQUETA}>Prioridad</label>
+              <select value={prioridad} onChange={(e) => setPrioridad(e.target.value)} className={CAMPO}>
+                {PRIORIDADES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
 
         {error && <p className="text-sm text-priority-urgente">{error}</p>}
 

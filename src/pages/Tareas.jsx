@@ -23,13 +23,6 @@ import TareaDetalle from '../components/TareaDetalle'
 import BuildVersion from '../components/BuildVersion'
 import { BellIcon, LogoutIcon, PlusIcon, SendIcon } from '../components/icons'
 
-const CONTEXTOS = [
-  { value: 'todos', label: 'Todo' },
-  { value: 'taller', label: 'Taller' },
-  { value: 'personal', label: 'Personal' },
-  { value: 'familia', label: 'Familia' },
-]
-
 export default function Tareas() {
   const { profile, signOut } = useAuth()
   const { usuarios } = useUsuarios()
@@ -42,7 +35,6 @@ export default function Tareas() {
     activar: activarPush,
   } = useNotificacionesPush()
   const [vista, setVista] = useState('tareas') // 'tareas' | 'reparaciones' | 'calendario'
-  const [contexto, setContexto] = useState('todos')
   const [asignadoA, setAsignadoA] = useState('todos')
   const [mostrarHechas, setMostrarHechas] = useState(false)
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -60,7 +52,10 @@ export default function Tareas() {
 
   const { toast, mostrar: mostrarToast, cerrar: cerrarToast } = useToast()
   const { tareas, loading, error, toggleHecho, crearTarea, editarTarea, borrarTarea } = useTareas({
-    contexto,
+    // El filtro por contexto (taller/personal/familia) se quito de la
+    // pantalla: el 100% de las tareas reales son "taller". La columna y la
+    // regla de RLS de tareas personales siguen intactas.
+    contexto: 'todos',
     asignadoA,
     mostrarHechas,
   })
@@ -277,12 +272,6 @@ export default function Tareas() {
             {/* overflow-x-auto en mobile (scroll horizontal); en sm+ pasa a
                 flex-wrap porque ya sobra ancho para acomodar los pills en filas. */}
             <div className="px-4 sm:px-6 mt-3 flex gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1">
-              {CONTEXTOS.map((c) => (
-                <FilterPill key={c.value} label={c.label} active={contexto === c.value} onClick={() => setContexto(c.value)} />
-              ))}
-            </div>
-
-            <div className="px-4 sm:px-6 mt-2 flex gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1">
               <FilterPill label="Todos" active={asignadoA === 'todos'} onClick={() => setAsignadoA('todos')} />
               {usuarios.map((u) => (
                 <FilterPill
@@ -372,7 +361,13 @@ export default function Tareas() {
       )}
 
       {modalAbierto && (
-        <NewTaskModal usuarios={usuarios} onClose={cerrarModal} onCreate={crearTareaYRefrescar} prefill={prefillModal} />
+        <NewTaskModal
+          usuarios={usuarios}
+          miId={profile?.id}
+          onClose={cerrarModal}
+          onCreate={crearTareaYRefrescar}
+          prefill={prefillModal}
+        />
       )}
 
       {tareaConfirmarHecha && (
