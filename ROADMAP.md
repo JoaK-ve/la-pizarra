@@ -120,7 +120,7 @@ El logo del taller (grande) y el nombre "La Pizarra" ya convivían en la cabecer
 El usuario mostró un mockup completo de dashboard (sidebar, buscador, campanita con notificaciones, tarjetas de números, panel de "Proyectos", calendario de hoy, accesos rápidos). Le encantó la parte visual. Se separó en dos grupos:
 
 **Aprobado en concepto, encaja con los datos reales — construir esto primero:**
-- Buscador de tareas por título/cliente (cliente, sobre datos ya cargados).
+- [x] Buscador de tareas por título/cliente (cliente, sobre datos ya cargados) — construido en v0.16.0: `Buscador.jsx`, campo de texto debajo del header (visible en cualquier pestaña), filtra `tareasVisibles` (mismo set que ya se usa para las tarjetas, sin pedir nada nuevo a Supabase) por título, descripción o nombre de cliente; desplegable con hasta 8 resultados, tocar uno abre el detalle de siempre. Antes de construir se mostró un mockup visual (widget) y el usuario lo aprobó ("sí, empieza por el buscador"). Falta verificación real del usuario.
 - Campanita con el número real de vencidas+hoy (mismo dato de `Recordatorios.jsx`) que abre esa lista al tocar, en vez del banner rojo fijo de arriba.
 - Menú de perfil unificado (avatar/iniciales + nombre + taller, con Ajustes y Cerrar sesión adentro) — hoy son botones sueltos en la cabecera.
 - Tarjetas de números REALES (ej. "N pendientes", "N vencidas", "N hechas esta semana") en vez de las 4 categorías inventadas del mockup (el mockup tenía "En progreso"/"En revisión" que no existen en nuestro modelo).

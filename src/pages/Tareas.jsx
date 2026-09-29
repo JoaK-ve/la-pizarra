@@ -10,6 +10,7 @@ import { useWorkshop } from '../hooks/useWorkshop'
 import { useNotificacionesPush } from '../hooks/useNotificacionesPush'
 import { useAbrirTareaDesdeEnlace } from '../hooks/useAbrirTareaDesdeEnlace'
 import FilterPill from '../components/FilterPill'
+import Buscador from '../components/Buscador'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
@@ -324,6 +325,8 @@ export default function Tareas() {
             </button>
           </div>
         </header>
+
+        <Buscador tareas={tareasVisibles} reparacionesPorCliente={reparacionesPorCliente} onAbrirDetalle={setTareaDetalle} />
 
         {/* Avisa de tareas vencidas o para hoy (de TODA la gente del taller)
             en las demas pestañas -- ver Recordatorios.jsx. En "Mi dia" se
