@@ -21,7 +21,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
-        <div>
+        <div className="flex flex-col items-center text-center">
+          <img src="/la-pizarra-icon-192.png" alt="" className="w-16 h-16 rounded-2xl mb-3" />
           <h1 className="font-display text-3xl font-bold text-text">La Pizarra</h1>
           <p className="text-text/60 text-sm mt-1">Entra con tu cuenta de WheelOS.</p>
         </div>

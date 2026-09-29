@@ -111,6 +111,10 @@ El usuario fue generando el kit de marca de La Pizarra (logo, icono, variantes d
 
 Los demás archivos limpios (`05_Logo_Fondo_Claro`, `07_Version_Compacta_Solo_Simbolo`) quedan guardados como material de marca sin uso técnico inmediato -- no van en los correos ni en el header, que usan el logo del TALLER, no el de La Pizarra. Dos de los archivos (`08`, `09`) son solo hojas de referencia del kit completo (con rótulos dentro de la imagen), no assets individuales -- de las 12 piezas que el "09" muestra en su índice, solo 5 llegaron como archivos reales.
 
+## Hecho (2026-09-30, v0.23.1) — ícono de La Pizarra en el login
+
+Mismo ícono real (512px de la PWA) que ya se usa en el header y en el manual de uso, ahora arriba del título en la pantalla de login, centrado -- antes el login no tenía ningún ícono, solo el texto "La Pizarra".
+
 ## Hecho (2026-09-29, v0.15.5) — ícono de La Pizarra junto a su nombre en la cabecera
 
 El logo del taller (grande) y el nombre "La Pizarra" ya convivían en la cabecera, pero "La Pizarra" no tenía su propio símbolo. Se agregó el ícono chico (favicon de 64x64, a 24px) pegado al texto: **[logo del taller]** — **[ícono] La Pizarra** / taller · Hola, nombre. Sin archivo nuevo, reusa el favicon ya existente.
