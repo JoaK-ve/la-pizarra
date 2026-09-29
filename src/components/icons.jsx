@@ -159,6 +159,15 @@ export function CalendarIcon(props) {
   )
 }
 
+export function AlertIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M10.3 3.9 2 18a1.5 1.5 0 0 0 1.3 2.2h17.4A1.5 1.5 0 0 0 22 18L13.7 3.9a1.5 1.5 0 0 0-2.6 0Z" />
+      <path d="M12 9.5v4M12 17h.01" />
+    </Icon>
+  )
+}
+
 export function SearchIcon(props) {
   return (
     <Icon {...props}>
