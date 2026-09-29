@@ -280,7 +280,7 @@ export default function Tareas() {
               <button
                 type="button"
                 onClick={abrirNuevaTarea}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-brand text-brand-contrast font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-brand-light to-brand text-brand-contrast font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
               >
                 <PlusIcon size={16} />
                 Nueva tarea
@@ -446,7 +446,7 @@ export default function Tareas() {
         <button
           type="button"
           onClick={abrirNuevaTarea}
-          className="sm:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-brand text-brand-contrast shadow-lg flex items-center justify-center z-20"
+          className="sm:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-brand-light to-brand text-brand-contrast shadow-lg flex items-center justify-center z-20"
           aria-label="Nueva tarea"
         >
           <PlusIcon size={24} />

@@ -1,6 +1,6 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-30.
+Última actualización: 2026-09-30 (tarde).
 
 ## Hecho (V1)
 
@@ -128,7 +128,7 @@ El usuario mostró un mockup completo de dashboard (sidebar, buscador, campanita
 - Estados intermedios de tarea ("en progreso"/"en revisión") — ya se había decidido a propósito que el estado es binario (pendiente/hecha); el mockup asume 4 estados.
 - La foto de fondo del encabezado y la barra lateral fija (sidebar) son cambios de layout más grandes — se consideran aparte, no en este primer paso.
 
-## En curso (2026-09-30) — mockup de móvil, mejora visual de alto impacto
+## Hecho (2026-09-30, v0.20.0-v0.23.0) — mockup de móvil, mejora visual de alto impacto
 
 El usuario mostró un segundo mockup, esta vez de móvil (header con ícono grande, barra de pestañas con 4 estados, tarjetas con insignias de color, "tareas de hoy" con hora y etiqueta de proyecto, "agenda de hoy" tipo línea de tiempo, barra de navegación fija abajo con una pestaña "Informes"). Motivo: "la parte operativa funciona de mil maravillas... falta es que lo empiecen a usar a profundidad" -- pidió mejora visual de alto impacto, no más funcionalidad.
 
@@ -138,7 +138,7 @@ El usuario mostró un segundo mockup, esta vez de móvil (header con ícono gran
 - [x] Barra de navegación fija abajo, solo móvil (Mi día/Tareas/Reparaciones/Calendario) en vez de las pestañas de scroll horizontal -- construido en v0.20.0: `BarraNavegacion.jsx` + 4 íconos nuevos (`ListIcon`, `CheckSquareIcon`, `WrenchIcon`, `CalendarIcon`). La fila de pestañas de scroll se mantiene, oculta, para tablet/desktop (`hidden sm:flex`). El FAB de "+" subió de `bottom-6` a `bottom-24` para no quedar tapado por la barra nueva; el contenedor pasó de `pb-24` a `pb-28` en móvil para que el final de las listas no quede oculto atrás. Falta verificación real del usuario.
 - [x] Bloque de marca más grande en el header: ícono real de La Pizarra (el de 512px de la PWA) en una tarjeta de color, nombre del taller como texto verde debajo (decisión tomada con el usuario: no la foto del logo del taller ahí, para no competir visualmente con el ícono grande) — construido en v0.21.0: el ícono ya trae su propio fondo/ilustración (no hace falta envolverlo en otra tarjeta de color), pasó de 24px a 48px; el logo redondo del taller se sacó del header (sigue usándose en Ajustes y en los correos); "La Pizarra" / nombre del taller (verde) / "Hola, nombre" quedan en líneas separadas. Falta verificación real del usuario.
 - [x] Tarjetas de números con insignia de color (cuadradito de color + ícono) en vez de las planas de ahora — construido en v0.22.0: `TarjetasResumen.jsx`, insignia cuadrada con ícono arriba del número en cada tarjeta, mismo significado de color que ya usa el resto de la app (rojo urgente para vencidas, verde de marca para hechas, neutro para pendientes). Ícono nuevo `AlertIcon`.
-- Degradado en el botón "Nueva tarea".
+- [x] Degradado en el botón "Nueva tarea" — construido en v0.23.0: `bg-gradient-to-br from-brand-light to-brand` en las 3 variantes del botón de crear tarea (inline del header, FAB de móvil y el de "Crear una tarea" del estado vacío de Mi día). El resto de los botones verdes (guardar, confirmar, iniciar sesión, etc.) se dejaron igual a propósito, a color plano -- el degradado es solo para la acción principal de crear. Con esto se completan los 4 pasos de la mejora visual de alto impacto del mockup de móvil.
 
 ## En curso
 

@@ -92,7 +92,7 @@ export default function MiDia({
             <button
               type="button"
               onClick={onCrear}
-              className="mt-4 rounded-full bg-brand text-brand-contrast font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
+              className="mt-4 rounded-full bg-gradient-to-br from-brand-light to-brand text-brand-contrast font-display font-semibold text-sm px-4 py-2 hover:opacity-90"
             >
               Crear una tarea
             </button>
