@@ -27,8 +27,9 @@ import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
 import TareaDetalle from '../components/TareaDetalle'
 import BuildVersion from '../components/BuildVersion'
-import { BellIcon, LogoutIcon, PlusIcon, SettingsIcon } from '../components/icons'
+import { BellIcon, PlusIcon } from '../components/icons'
 import Ajustes from '../components/Ajustes'
+import ProfileMenu from '../components/ProfileMenu'
 
 export default function Tareas() {
   const { profile, signOut } = useAuth()
@@ -312,18 +313,12 @@ export default function Tareas() {
               </button>
             )}
             <AvisosBell tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />
-            <button
-              type="button"
-              onClick={() => setAjustesAbiertos(true)}
-              className="text-text/50 hover:text-text p-1"
-              aria-label="Ajustes de avisos"
-              title="Ajustes de avisos"
-            >
-              <SettingsIcon size={20} />
-            </button>
-            <button type="button" onClick={signOut} className="text-text/50 hover:text-text p-1" aria-label="Cerrar sesión">
-              <LogoutIcon size={20} />
-            </button>
+            <ProfileMenu
+              nombre={profile?.full_name}
+              taller={workshop?.fantasy_name}
+              onAjustes={() => setAjustesAbiertos(true)}
+              onSignOut={signOut}
+            />
           </div>
         </header>
 
