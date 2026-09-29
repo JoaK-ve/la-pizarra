@@ -1,6 +1,6 @@
 // "YYYY-MM-DD" en hora LOCAL (no UTC) -- fecha_limite es tipo `date` en
 // Postgres, supabase-js la devuelve tal cual ese string, sin conversion de
-// zona horaria. Compartido entre Calendario.jsx y Recordatorios.jsx.
+// zona horaria. Compartido entre Calendario.jsx y AvisosBell.jsx.
 export function formatearFechaLocal(date) {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -14,7 +14,7 @@ export function formatearFechaLocal(date) {
 // claves en el Map de Calendario.jsx fallaba en silencio: la tarea existia
 // y el banner de Recordatorios (que compara con < / ===) la mostraba bien,
 // pero el dia del calendario quedaba vacio porque "2026-09-03T00:00:00" no
-// es === "2026-09-03".
+// es === "2026-09-03" (mismo caso que valida la campanita de avisos).
 export function soloFecha(valor) {
   return typeof valor === 'string' ? valor.slice(0, 10) : valor
 }

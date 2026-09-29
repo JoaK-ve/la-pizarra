@@ -14,7 +14,7 @@ import Buscador from '../components/Buscador'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
-import Recordatorios from '../components/Recordatorios'
+import AvisosBell from '../components/AvisosBell'
 import MiDia from '../components/MiDia'
 import NecesitaAtencion from '../components/NecesitaAtencion'
 import { reparacionesQueNecesitanAtencion } from '../utils/atencion'
@@ -191,8 +191,8 @@ export default function Tareas() {
 
   // Igual que crearTareaYRefrescar arriba: ademas de marcar/reabrir la
   // tarea, refresca el Calendario -- si no, una tarea marcada hecha desde
-  // el banner de Recordatorios (o reabierta) seguiria apareciendo ahi
-  // hasta salir y volver a entrar a esa pestaña.
+  // la campanita de avisos (o reabierta) seguiria apareciendo ahi hasta
+  // salir y volver a entrar a esa pestaña.
   async function toggleHechoYRefrescar(tarea) {
     const resultado = await toggleHecho(tarea)
     recargarListas()
@@ -311,6 +311,7 @@ export default function Tareas() {
                 <BellIcon size={20} />
               </button>
             )}
+            <AvisosBell tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />
             <button
               type="button"
               onClick={() => setAjustesAbiertos(true)}
@@ -327,11 +328,6 @@ export default function Tareas() {
         </header>
 
         <Buscador tareas={tareasVisibles} reparacionesPorCliente={reparacionesPorCliente} onAbrirDetalle={setTareaDetalle} />
-
-        {/* Avisa de tareas vencidas o para hoy (de TODA la gente del taller)
-            en las demas pestañas -- ver Recordatorios.jsx. En "Mi dia" se
-            oculta: ahi ya salen, ordenadas, las tuyas. */}
-        {vista !== 'midia' && <Recordatorios tareas={tareasConFecha} onAbrirDetalle={setTareaDetalle} />}
 
         {/* Cambia entre Mi dia, la lista completa de tareas, las reparaciones
             activas del taller (leidas de WheelOS, de solo lectura) y el
