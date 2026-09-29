@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import TaskCard from './TaskCard'
+import TarjetasResumen from './TarjetasResumen'
 import { fechaRelativa, soloFecha } from '../utils/fechas'
 
 const RANGO_PRIORIDAD = { urgente: 0, seguimiento: 1, normal: 2, nuevo: 2, baja: 3 }
@@ -28,6 +29,7 @@ export default function MiDia({
   onCrear,
   reparacionesAtencion = 0,
   onVerReparaciones,
+  resumen,
 }) {
   const grupos = useMemo(() => {
     const hoy = fechaRelativa(0)
@@ -49,7 +51,16 @@ export default function MiDia({
 
   return (
     <main className="px-4 sm:px-6 mt-4 pb-4">
-      <p className="text-sm text-text/60">
+      {resumen && (
+        <TarjetasResumen
+          pendientes={resumen.pendientes}
+          vencidas={resumen.vencidas}
+          hechasSemana={resumen.hechasSemana}
+          cargandoHechas={resumen.cargandoHechas}
+        />
+      )}
+
+      <p className="text-sm text-text/60 mt-4">
         Tus tareas pendientes y las que no tienen a nadie asignado.
       </p>
 

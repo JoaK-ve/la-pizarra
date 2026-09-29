@@ -39,3 +39,26 @@ export function fechaRelativa(desplazamientoDias) {
   fecha.setDate(fecha.getDate() + desplazamientoDias)
   return formatearFechaLocal(fecha)
 }
+
+// Compartido entre AvisosBell.jsx y TarjetasResumen.jsx -- mismo calculo de
+// "vencidas" y "para hoy" en un solo lugar, para que el numero de la
+// campanita y el de la tarjeta nunca se puedan desincronizar.
+export function tareasVencidasYHoy(tareas) {
+  const hoyClave = formatearFechaLocal(new Date())
+  const pendientes = tareas.filter((t) => t.estado === 'pendiente')
+  return {
+    vencidas: pendientes.filter((t) => soloFecha(t.fecha_limite) < hoyClave),
+    hoy: pendientes.filter((t) => soloFecha(t.fecha_limite) === hoyClave),
+  }
+}
+
+// Lunes 00:00 de esta semana, en hora local -- para "hechas esta semana".
+export function inicioDeSemana() {
+  const ahora = new Date()
+  const diaSemana = ahora.getDay() // 0 = domingo ... 6 = sabado
+  const diasDesdeElLunes = diaSemana === 0 ? 6 : diaSemana - 1
+  const lunes = new Date(ahora)
+  lunes.setDate(ahora.getDate() - diasDesdeElLunes)
+  lunes.setHours(0, 0, 0, 0)
+  return lunes
+}

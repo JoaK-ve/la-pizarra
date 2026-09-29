@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BellIcon } from './icons'
-import { formatearFechaLocal, soloFecha } from '../utils/fechas'
+import { tareasVencidasYHoy } from '../utils/fechas'
 
 // Reemplaza al banner fijo de Recordatorios (v0.16.0): mismo calculo de
 // vencidas/hoy, pero como campanita con contador en el header -- visible en
@@ -9,15 +9,7 @@ import { formatearFechaLocal, soloFecha } from '../utils/fechas'
 // redundante pero no molesta (mismo dato, forma distinta de llegar a el).
 export default function AvisosBell({ tareas, onAbrirDetalle }) {
   const [abierto, setAbierto] = useState(false)
-  const hoyClave = formatearFechaLocal(new Date())
-
-  const { vencidas, hoy } = useMemo(() => {
-    const pendientes = tareas.filter((t) => t.estado === 'pendiente')
-    return {
-      vencidas: pendientes.filter((t) => soloFecha(t.fecha_limite) < hoyClave),
-      hoy: pendientes.filter((t) => soloFecha(t.fecha_limite) === hoyClave),
-    }
-  }, [tareas, hoyClave])
+  const { vencidas, hoy } = useMemo(() => tareasVencidasYHoy(tareas), [tareas])
 
   const total = vencidas.length + hoy.length
 

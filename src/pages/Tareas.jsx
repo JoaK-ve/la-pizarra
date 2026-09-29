@@ -18,10 +18,11 @@ import AvisosBell from '../components/AvisosBell'
 import MiDia from '../components/MiDia'
 import NecesitaAtencion from '../components/NecesitaAtencion'
 import { reparacionesQueNecesitanAtencion } from '../utils/atencion'
-import { fechaRelativa } from '../utils/fechas'
+import { fechaRelativa, tareasVencidasYHoy } from '../utils/fechas'
 import { avisarAsignacion } from '../lib/avisos'
 import Toast from '../components/Toast'
 import { useTareasPendientes } from '../hooks/useTareasPendientes'
+import { useHechasEstaSemana } from '../hooks/useHechasEstaSemana'
 import { useToast } from '../hooks/useToast'
 import NewTaskModal from '../components/NewTaskModal'
 import ConfirmarHechaModal from '../components/ConfirmarHechaModal'
@@ -88,6 +89,10 @@ export default function Tareas() {
   // de Calendario.jsx) para poder refrescarlo despues de crear una tarea
   // desde cualquier lado, no solo desde el propio calendario.
   const { tareas: tareasConFecha, loading: loadingCalendario, refetch: recargarCalendario } = useTareasConFecha()
+  // Contador de "hechas esta semana" para las tarjetas de Mi dia -- consulta
+  // aparte y liviana (solo el numero, sin traer filas), ver el hook.
+  const { cantidad: hechasEstaSemana, loading: loadingHechasSemana, refetch: recargarHechasSemana } = useHechasEstaSemana()
+  const vencidasDelTaller = useMemo(() => tareasVencidasYHoy(tareasConFecha).vencidas.length, [tareasConFecha])
 
   const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios])
 
@@ -127,6 +132,7 @@ export default function Tareas() {
   function recargarListas() {
     recargarCalendario()
     recargarPendientes()
+    recargarHechasSemana()
   }
 
   // crearTarea (de useTareas) ya refresca su propia lista -- esto ademas
@@ -348,6 +354,7 @@ export default function Tareas() {
             onCrear={puedeCrear ? abrirNuevaTarea : undefined}
             reparacionesAtencion={necesitanAtencion.length}
             onVerReparaciones={() => setVista('reparaciones')}
+            resumen={{ pendientes: pendientes.length, vencidas: vencidasDelTaller, hechasSemana: hechasEstaSemana, cargandoHechas: loadingHechasSemana }}
           />
         )}
 
