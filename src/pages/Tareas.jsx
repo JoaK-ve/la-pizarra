@@ -11,6 +11,7 @@ import { useNotificacionesPush } from '../hooks/useNotificacionesPush'
 import { useAbrirTareaDesdeEnlace } from '../hooks/useAbrirTareaDesdeEnlace'
 import FilterPill from '../components/FilterPill'
 import Buscador from '../components/Buscador'
+import BarraNavegacion from '../components/BarraNavegacion'
 import TaskCard from '../components/TaskCard'
 import RepairCard from '../components/RepairCard'
 import Calendario from '../components/Calendario'
@@ -248,7 +249,9 @@ export default function Tareas() {
     // max-w-3xl + mx-auto no necesita variante sm: -- en mobile el ancho de
     // pantalla ya es menor a 3xl (48rem/768px), asi que no cambia nada ahi;
     // en tablet/desktop evita que el contenido se estire borde a borde.
-    <div className="min-h-screen pb-24 sm:pb-10">
+    // pb-28 en movil: deja espacio para que el FAB y BarraNavegacion (ambos
+    // fijos abajo) no tapen el final de las listas al hacer scroll.
+    <div className="min-h-screen pb-28 sm:pb-10">
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -332,9 +335,10 @@ export default function Tareas() {
 
         {/* Cambia entre Mi dia, la lista completa de tareas, las reparaciones
             activas del taller (leidas de WheelOS, de solo lectura) y el
-            calendario. Con scroll horizontal por si no caben en pantallas
-            angostas. */}
-        <div className="px-4 sm:px-6 mt-4 flex gap-2 overflow-x-auto pb-1">
+            calendario. En movil esto lo reemplaza BarraNavegacion (fija
+            abajo, mas "de app") -- se deja esta fila solo para tablet/desktop,
+            donde ya sobra ancho para pestañas arriba. */}
+        <div className="hidden sm:flex sm:px-6 mt-4 gap-2 flex-wrap pb-1">
           <FilterPill label="Mi día" active={vista === 'midia'} onClick={() => setVista('midia')} />
           <FilterPill label="Tareas" active={vista === 'tareas'} onClick={() => setVista('tareas')} />
           <FilterPill label="Reparaciones" active={vista === 'reparaciones'} onClick={() => setVista('reparaciones')} />
@@ -446,17 +450,21 @@ export default function Tareas() {
         )}
       </div>
 
-      {/* FAB flotante, solo mobile -- en sm+ el boton equivalente ya esta en el header. */}
+      {/* FAB flotante, solo mobile -- en sm+ el boton equivalente ya esta en el header.
+          bottom-24 (no bottom-6) para quedar arriba de BarraNavegacion, que
+          ahora ocupa esa franja fija abajo en movil. */}
       {puedeCrear && (
         <button
           type="button"
           onClick={abrirNuevaTarea}
-          className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand text-brand-contrast shadow-lg flex items-center justify-center"
+          className="sm:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-brand text-brand-contrast shadow-lg flex items-center justify-center z-20"
           aria-label="Nueva tarea"
         >
           <PlusIcon size={24} />
         </button>
       )}
+
+      <BarraNavegacion vista={vista} onCambiar={setVista} />
 
       {modalAbierto && (
         <NewTaskModal

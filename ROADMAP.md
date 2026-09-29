@@ -128,6 +128,18 @@ El usuario mostró un mockup completo de dashboard (sidebar, buscador, campanita
 - Estados intermedios de tarea ("en progreso"/"en revisión") — ya se había decidido a propósito que el estado es binario (pendiente/hecha); el mockup asume 4 estados.
 - La foto de fondo del encabezado y la barra lateral fija (sidebar) son cambios de layout más grandes — se consideran aparte, no en este primer paso.
 
+## En curso (2026-09-30) — mockup de móvil, mejora visual de alto impacto
+
+El usuario mostró un segundo mockup, esta vez de móvil (header con ícono grande, barra de pestañas con 4 estados, tarjetas con insignias de color, "tareas de hoy" con hora y etiqueta de proyecto, "agenda de hoy" tipo línea de tiempo, barra de navegación fija abajo con una pestaña "Informes"). Motivo: "la parte operativa funciona de mil maravillas... falta es que lo empiecen a usar a profundidad" -- pidió mejora visual de alto impacto, no más funcionalidad.
+
+**No encaja con los datos reales, no se construye:** los 4 estados (ya resuelto arriba), las etiquetas de "proyecto" por tarea (mismo tema de "Proyectos" multi-negocio), horas en las tareas y la "agenda" tipo línea de tiempo (`fecha_límite` es solo fecha, sin hora -- mismo motivo por el que se descartó en el rediseño v2), y la pestaña "Informes" (es funcionalidad nueva, no visual -- ya está anotada como idea futura).
+
+**Aprobado, se construye en 4 pasos (mockup mostrado y aprobado antes de empezar):**
+- [x] Barra de navegación fija abajo, solo móvil (Mi día/Tareas/Reparaciones/Calendario) en vez de las pestañas de scroll horizontal -- construido en v0.20.0: `BarraNavegacion.jsx` + 4 íconos nuevos (`ListIcon`, `CheckSquareIcon`, `WrenchIcon`, `CalendarIcon`). La fila de pestañas de scroll se mantiene, oculta, para tablet/desktop (`hidden sm:flex`). El FAB de "+" subió de `bottom-6` a `bottom-24` para no quedar tapado por la barra nueva; el contenedor pasó de `pb-24` a `pb-28` en móvil para que el final de las listas no quede oculto atrás. Falta verificación real del usuario.
+- Bloque de marca más grande en el header: ícono real de La Pizarra (el de 512px de la PWA) en una tarjeta de color, nombre del taller como texto verde debajo (decisión tomada con el usuario: no la foto del logo del taller ahí, para no competir visualmente con el ícono grande).
+- Tarjetas de números con insignia de color (cuadradito de color + ícono) en vez de las planas de ahora.
+- Degradado en el botón "Nueva tarea".
+
 ## En curso
 
 - **Verificación real por el usuario de las fases B, C y D** (ver el estado al cierre de arriba).

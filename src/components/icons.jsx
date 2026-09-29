@@ -122,6 +122,43 @@ export function SendIcon(props) {
   )
 }
 
+export function ListIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M8 6h13M8 12h13M8 18h13" />
+      <circle cx="3.5" cy="6" r="1" fill="currentColor" stroke="none" />
+      <circle cx="3.5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="3.5" cy="18" r="1" fill="currentColor" stroke="none" />
+    </Icon>
+  )
+}
+
+export function CheckSquareIcon(props) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="m8 12 3 3 5-6" />
+    </Icon>
+  )
+}
+
+export function WrenchIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.1 2.1a2 2 0 0 1-2.8-2.8Z" />
+    </Icon>
+  )
+}
+
+export function CalendarIcon(props) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M16 3v4M8 3v4M3 10h18" />
+    </Icon>
+  )
+}
+
 export function SearchIcon(props) {
   return (
     <Icon {...props}>
