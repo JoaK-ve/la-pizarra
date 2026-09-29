@@ -254,33 +254,22 @@ export default function Tareas() {
     <div className="min-h-screen pb-28 sm:pb-10">
       <div className="max-w-3xl mx-auto">
         <header className="px-4 sm:px-6 pt-6 pb-4 flex items-start justify-between gap-3">
+          {/* Bloque de marca mas grande (mejora visual del mockup de movil,
+              v0.21.0): el icono real de La Pizarra (el mismo de 512px de la
+              PWA, ya trae su propio fondo e ilustracion) reemplaza al icono
+              chiquito de antes; el logo del taller se saco de aca a
+              proposito (decidido con el usuario) para no competir
+              visualmente con el icono grande -- el taller se identifica por
+              su nombre, en verde. El logo real del taller se sigue usando
+              en Ajustes y en los correos. */}
           <div className="flex items-center gap-3">
-            {workshop?.logo_icon_url ? (
-              <img
-                src={workshop.logo_icon_url}
-                alt="Logo del taller"
-                className="w-11 h-11 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              // Placeholder punteado mientras carga o si el taller no tiene
-              // logo cargado -- mismo tratamiento que se acordo en el mockup.
-              <div className="w-11 h-11 rounded-full border-2 border-dashed border-text/30 flex items-center justify-center shrink-0 font-mono text-[9px] text-text/50 text-center leading-tight">
-                LOGO
-                <br />
-                TALLER
-              </div>
-            )}
+            <img src="/la-pizarra-icon-192.png" alt="" className="w-12 h-12 rounded-xl shrink-0" />
             <div>
-              <h1 className="flex items-center gap-2 font-display text-3xl font-bold text-text">
-                <img src="/la-pizarra-favicon-64x64.png" alt="" className="w-6 h-6 rounded-md" />
-                La Pizarra
-              </h1>
-              {profile && (
-                <p className="text-text/50 text-sm mt-0.5">
-                  {workshop?.fantasy_name && <span className="text-text/70">{workshop.fantasy_name} · </span>}
-                  Hola, {profile.full_name.split(' ')[0]}
-                </p>
+              <h1 className="font-display text-2xl font-bold text-text leading-tight">La Pizarra</h1>
+              {workshop?.fantasy_name && (
+                <p className="font-display font-semibold text-brand-light text-sm leading-tight mt-0.5">{workshop.fantasy_name}</p>
               )}
+              {profile && <p className="text-text/50 text-xs mt-0.5">Hola, {profile.full_name.split(' ')[0]}</p>}
               <BuildVersion className="mt-0.5" />
             </div>
           </div>
