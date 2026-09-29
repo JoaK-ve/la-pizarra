@@ -140,12 +140,19 @@ El usuario mostró un segundo mockup, esta vez de móvil (header con ícono gran
 - [x] Tarjetas de números con insignia de color (cuadradito de color + ícono) en vez de las planas de ahora — construido en v0.22.0: `TarjetasResumen.jsx`, insignia cuadrada con ícono arriba del número en cada tarjeta, mismo significado de color que ya usa el resto de la app (rojo urgente para vencidas, verde de marca para hechas, neutro para pendientes). Ícono nuevo `AlertIcon`.
 - [x] Degradado en el botón "Nueva tarea" — construido en v0.23.0: `bg-gradient-to-br from-brand-light to-brand` en las 3 variantes del botón de crear tarea (inline del header, FAB de móvil y el de "Crear una tarea" del estado vacío de Mi día). El resto de los botones verdes (guardar, confirmar, iniciar sesión, etc.) se dejaron igual a propósito, a color plano -- el degradado es solo para la acción principal de crear. Con esto se completan los 4 pasos de la mejora visual de alto impacto del mockup de móvil.
 
+## Decisión (2026-09-30) — estados intermedios de tarea, por ahora NO
+
+El usuario preguntó cómo sería agregar estados intermedios ("en progreso"), idea que había quedado flotando desde el mockup de dashboard. Se explicó la propuesta más simple (pasar de 2 a 3 estados: pendiente → en_progreso → hecho, el círculo de la tarjeta ciclando entre los tres) y el costo real: no es la base de datos, es revisar cada sitio que hoy asume binario (contadores de Mi día, filtro "mostrar hechas", avisos por email/push, tarjetas de números).
+
+**Decisión: no se construye todavía.** Razón (recomendación aceptada por el usuario): nadie ha pedido esto por una necesidad real de uso, es una idea que vino de un mockup, no un dolor confirmado. Se retoma si después de más uso real (ver "Validar uso real con el equipo" abajo) aparece un caso concreto que lo justifique. Sigue en "Fuera de alcance" más abajo.
+
 ## En curso
 
+- **Uso real a fondo por el equipo — el pendiente más importante ahora mismo.** El usuario mismo lo resumió (2026-09-30): "la parte operativa funciona de mil maravillas... falta es que lo empiecen a usar a profundidad". La parte técnica (fases A-D + las dos mejoras visuales) está construida y desplegada; lo que falta ya no es código, es adopción real del equipo. Ver también el manual de uso (enviado al usuario el 2026-09-30, fuera de este repo).
 - **Verificación real por el usuario de las fases B, C y D** (ver el estado al cierre de arriba).
 - **Por verificar de la fase A:** (1) que el logo ya se ve en el correo tras v0.7.1; (2) el primer resumen automático real, esperado el 29/09 ~10:00 hora España (hay una tarea urgente que vence el 29/09).
 - **Validar uso real con el equipo.** Joaquín ("Joaco") ya está usando la app. Falta entrenar a Lili — pendiente por parte del usuario, no técnico. Sin novedades desde el 2026-09-04.
-- **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba.
+- **Confirmar con el usuario si el rediseño v2 ya lo convence de punta a punta** — el usuario expresó insatisfacción general con el uso ("no estoy contento con cómo funciona"), no con lo visual: de ahí el plan de arriba. Con las dos mejoras visuales del 2026-09-30 ya construidas, el propio usuario dijo "ahora sí me gusta lo que estamos haciendo" -- pendiente ver si eso ya responde esta pregunta de punta a punta.
 
 ## Próximo (sin fecha aún)
 
