@@ -111,9 +111,15 @@ El usuario fue generando el kit de marca de La Pizarra (logo, icono, variantes d
 
 Los demás archivos limpios (`05_Logo_Fondo_Claro`, `07_Version_Compacta_Solo_Simbolo`) quedan guardados como material de marca sin uso técnico inmediato -- no van en los correos ni en el header, que usan el logo del TALLER, no el de La Pizarra. Dos de los archivos (`08`, `09`) son solo hojas de referencia del kit completo (con rótulos dentro de la imagen), no assets individuales -- de las 12 piezas que el "09" muestra en su índice, solo 5 llegaron como archivos reales.
 
+## Hecho (2026-09-30, v0.24.0) — logo horizontal completo en el login
+
+El usuario pidió mejorar el logo del login (v0.23.1 había puesto solo el ícono chico + texto "La Pizarra" por separado) y mostró `La_Pizarra_06_Version_Horizontal_Cabecera.png` (ícono + "La Pizarra" + "WheelOS" en un solo lockup horizontal, fondo oscuro). Se redujo con sharp-cli a 1000px de ancho (de 985KB a 274KB) y se guardó como `public/la-pizarra-wordmark.png`. Reemplaza al ícono+texto sueltos del login. Verificado por Claude mismo antes de desplegar: se levantó el dev server local (`.claude/launch.json` nuevo, `npm run dev`) y se revisó por captura en escritorio y en móvil (375px) -- se ve bien en ambos, el fondo casi negro de la imagen contrasta apenas con el fondo de la app sin verse como un recuadro raro.
+
+Nota: "WheelOS" en este logo es la plataforma (no un taller especifico), por eso encaja en el login -- que es la unica pantalla de la app que es genuinamente de la plataforma, antes de saber a que taller pertenece quien entra. El header DENTRO de la app (ya logueado) sigue mostrando el nombre del taller real, nunca "WheelOS" ni el de otro taller.
+
 ## Hecho (2026-09-30, v0.23.1) — ícono de La Pizarra en el login
 
-Mismo ícono real (512px de la PWA) que ya se usa en el header y en el manual de uso, ahora arriba del título en la pantalla de login, centrado -- antes el login no tenía ningún ícono, solo el texto "La Pizarra".
+Mismo ícono real (512px de la PWA) que ya se usa en el header y en el manual de uso, ahora arriba del título en la pantalla de login, centrado -- antes el login no tenía ningún ícono, solo el texto "La Pizarra". Reemplazado por el logo horizontal completo en v0.24.0 (ver arriba).
 
 ## Hecho (2026-09-29, v0.15.5) — ícono de La Pizarra junto a su nombre en la cabecera
 
