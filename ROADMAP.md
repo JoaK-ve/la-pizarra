@@ -1,6 +1,10 @@
 # Roadmap — La Pizarra
 
-Última actualización: 2026-09-30 (tarde).
+Última actualización: 2026-09-30 (noche) — v1.0.0.
+
+## v1.0.0 (2026-09-30)
+
+Primera versión "1.0": las 4 fases del plan de mejoras (A-D, avisos reales/usabilidad/integración WheelOS/ajustes por persona), las dos rondas de mockups (dashboard de escritorio y visual de móvil) y el logo completo en login, todo construido, desplegado y verificado por el usuario. A partir de acá, el foco pasa de construir a que el equipo la use a fondo (ver "En curso" más abajo) -- decisión del propio usuario ("creo que podemos poner V 1.0.0").
 
 ## Hecho (V1)
 
